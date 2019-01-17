@@ -19,19 +19,19 @@ Features :
 #### Screenshots
 
 ###### Dashboard view
-![dashboard view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/dashboard_view.jpg)
+![dashboard view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/dashboard_view.jpg?raw=true)
 ###### Cluster view (theme cashmachine)
-![cluster view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/cluster_view.jpg)
+![cluster view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/cluster_view.jpg?raw=true)
 ###### Cluster view (theme terminal)
-![cluster view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/cluster_view_terminal.jpg)
+![cluster view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/cluster_view_terminal.jpg?raw=true)
 ###### Cluster view (theme ratatouille)
-![cluster view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/cluster_view_ratatouille.jpg)
+![cluster view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/cluster_view_ratatouille.jpg?raw=true)
 ###### Topics view
-![topics view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/topics_view.jpg)
+![topics view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/topics_view.jpg?raw=true)
 ###### Topic view
-![topic view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/topic_view.jpg)
+![topic view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/topic_view.jpg?raw=true)
 ###### Consumer view
-![consumer view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/consumer_view.jpg)
+![consumer view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/consumer_view.jpg?raw=true)
 
 #### Development
 
