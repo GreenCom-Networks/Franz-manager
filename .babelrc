@@ -1,11 +1,10 @@
 {
   "presets": [
-    "env",
-    "react",
-    "stage-0"
+    "@babel/preset-env",
+    "@babel/preset-react"
   ],
   "plugins": [
-    "transform-async-to-generator",
+    "@babel/plugin-proposal-class-properties",
     "react-hot-loader/babel"
   ]
 }

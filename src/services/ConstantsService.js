@@ -1,13 +1,11 @@
-const serverUrl = '%SERVER_URL%' || null;
-const websocketUrl = '%WEBSOCKET_SERVER_URL%' || null;
+const serverUrl = `${SERVER_URL}`;
+const websocketServerUrl = `${WEBSOCKET_SERVER_URL}`;
 
 export default {
-  apis: {
-    franzManagerApi: {
-      url: NODE_ENV === 'production' && serverUrl ? serverUrl : ['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname)
-        ? 'http://localhost:1337/franz-manager-api' : `${window.location.origin}/franz-manager-api`,
-      webSocketUrl: NODE_ENV === 'production' && websocketUrl ? websocketUrl : ['localhost', '127.0.0.1', '0.0.0.0'].includes(window.location.hostname)
-        ? 'ws://localhost:5443/franz-manager-api' : `wss://${window.location.host}:5443/franz-manager-api`,
+    apis: {
+	franzManagerApi: {
+	    url: serverUrl ? serverUrl : `${window.location.origin}/franz-manager-api`,
+	    webSocketUrl: websocketServerUrl ? websocketServerUrl : `wss://${window.location.host}:5443/franz-manager-api`
+	},
     },
-  },
 };

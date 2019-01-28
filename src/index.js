@@ -1,6 +1,5 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { AppContainer } from 'react-hot-loader';
 import Router from './Router';
 
 import 'mdi/css/materialdesignicons.css';
@@ -27,26 +26,7 @@ import ThemesStore from './stores/ThemesStore';
   });
 }(Element.prototype));
 
-if (!global._babelPolyfill) {
-  require('babel-polyfill');
-}
-
-const render = (Component) => {
-  ReactDOM.render(
-    <AppContainer>
-      <Component />
-    </AppContainer>,
-    document.getElementById('root'),
-  );
-};
-
-render(Router);
-
 ThemesStore.initTheme();
 
-if (module.hot) {
-  module.hot.accept('./Router', () => {
-    const router = Router.default;
-    render(router);
-  });
-}
+ReactDOM.render(<Router />, document.getElementById('root'));
+

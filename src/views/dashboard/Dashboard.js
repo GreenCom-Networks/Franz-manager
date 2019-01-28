@@ -1,6 +1,5 @@
 import React from 'react';
 import Konva from 'konva';
-import numeral from 'numeral';
 import BrokersService from '../../services/BrokersService';
 
 import ClustersService from '../../services/ClustersService';
@@ -31,6 +30,21 @@ let drawSkullIcon;
 let shadeColor;
 let drawBadge;
 let deleteBadge;
+
+function prettyPrintBytes(bytes) {
+    if(bytes === null || bytes === undefined) return '-';
+
+    const units = ['B', 'kB', 'MB', 'GB', 'TB', 'PB'];
+
+    let val = Math.round(+bytes);
+
+    let i;
+    for(i = 0; i < units.length-1; ++i) {
+	if(val < 1024) return val + units[i];
+	val = Math.round(val / 1024);
+    }
+    return val + units[i];
+}
 
 class Dashboard extends React.Component {
   constructor(props) {
@@ -846,10 +860,7 @@ class Dashboard extends React.Component {
               <span
                 className="value"
               >
-                {numeral(stats.find(s => s.key === 'BytesInPerSec')
-                  .value
-                  .toString())
-                  .format('0b')}
+                {prettyPrintBytes(stats.find(s => s.key === 'BytesInPerSec').value)}
               </span>
             </div>
             <div className="modal-part-line">
@@ -857,10 +868,7 @@ class Dashboard extends React.Component {
               <span
                 className="value"
               >
-                {numeral(stats.find(s => s.key === 'BytesOutPerSec')
-                  .value
-                  .toString())
-                  .format('0b')}
+                {prettyPrintBytes(stats.find(s => s.key === 'BytesOutPerSec').value)}
               </span>
             </div>
           </div>

@@ -22,7 +22,8 @@ module.exports = {
         }),
         new webpack.DefinePlugin({
             'NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
-            'SERVER_URL': JSON.stringify(process.env.SERVER_URL),
+            'SERVER_URL': JSON.stringify(process.env.SERVER_URL || ''),
+	    'WEBSOCKET_SERVER_URL': JSON.stringify(process.env.WEBSOCKET_SERVER_URL || ''),
             'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development')
         }),
         new webpack.optimize.AggressiveMergingPlugin(), //Merge chunks
@@ -31,8 +32,7 @@ module.exports = {
     ],
     entry: {
         'app': [
-            'babel-polyfill',
-            'react-hot-loader/patch',
+            '@babel/polyfill',
             './src/index'
         ]
     },

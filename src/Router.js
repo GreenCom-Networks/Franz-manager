@@ -3,6 +3,7 @@
  */
 
 import React from 'react';
+import { hot } from 'react-hot-loader/root';
 import {
   BrowserRouter, Switch, Route, Redirect,
 } from 'react-router-dom';
@@ -44,4 +45,4 @@ const routes = () => {
   </BrowserRouter>;
 };
 
-export default routes;
+export default hot(routes);
