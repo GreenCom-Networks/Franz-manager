@@ -200,7 +200,7 @@
           text-overflow: ellipsis;
         }
 
-        .json-pretty {
+        .__json-pretty__ {
           font: map_get($fonts, code);
           line-height: 21px;
           padding: 0 24px 16px 16px;
@@ -208,16 +208,20 @@
           overflow: hidden;
           text-overflow: ellipsis;
 
-          .json-key {
+          .__json-key__ {
             color: map_get($text-colors, code-key);
             font: map_get($fonts, code);
           }
-          .json-string {
+          .__json-string__ {
             color: map_get($text-colors, code-string);
             font: map_get($fonts, code);
           }
-          .json-value {
+          .__json-value__ {
             color: map_get($text-colors, code-value);
+            font: map_get($fonts, code);
+          }
+	  .__json-boolean__ {
+            color: map_get($text-colors, code-boolean);
             font: map_get($fonts, code);
           }
         }

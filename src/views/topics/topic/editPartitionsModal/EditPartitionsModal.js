@@ -23,8 +23,10 @@ class EditPartitionsModal extends Component {
   _updatePartitions() {
     if (!this.partitionInputRef.current.value || Number.isNaN(this.partitionInputRef.current.value)) {
       alert('Input must be an integer.');
+      return;
     } else if (Number(this.partitionInputRef.current.value) <= this.props.currentPartitions) {
       alert(`Input has to be greater than ${this.props.currentPartitions}.`);
+      return;
     }
     TopicsService.addTopicPartitions(this.props.topic, Number(this.partitionInputRef.current.value) - this.props.currentPartitions)
       .then(() => {

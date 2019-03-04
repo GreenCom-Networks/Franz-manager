@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import PerfectScrollbar from 'react-perfect-scrollbar';
 import JSONPretty from 'react-json-pretty';
-import moment from 'moment';
 import { ToastStore, ToastContainer } from 'react-toasts';
 import ReactTooltip from 'react-tooltip';
 import Ink from 'react-ink';
@@ -123,24 +122,16 @@ class Topic extends Component {
         maxShownMessages = 10;
         break;
       case 'Last 5 minutes':
-        timestamp = moment()
-          .subtract(5, 'm')
-          .format('x');
+	timestamp = Date.now() - 5*60*1000; // 5min
         maxShownMessages = 30;
         break;
       case 'Last hour':
-        timestamp = moment()
-          .subtract(1, 'h')
-          .format('x');
+	timestamp = Date.now() - 60*60*1000; // 1h
         maxShownMessages = 30;
         break;
       case 'Today':
-        timestamp = moment()
-          .hour(0)
-          .minute(0)
-          .second(0)
-          .millisecond(0)
-          .format('x');
+	timestamp = Date.now();
+	timestamp -= timestamp % (24*60*60*1000); // Set to midnight
         maxShownMessages = 30;
         break;
       case 'Live message':

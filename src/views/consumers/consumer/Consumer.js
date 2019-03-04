@@ -65,7 +65,7 @@ class Consumer extends Component {
       })
       .then((partitionsArray) => {
         const { topics } = this.state;
-        const partitions = partitionsArray.flatten();
+        const partitions = partitionsArray.flat();
         partitions.forEach((partition) => {
           const topic = topics[partition.topic].find(t => t.partition === partition.partition);
           if (topic) topic.topicOffset = partition.endOffset;

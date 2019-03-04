@@ -2,7 +2,6 @@ import React from 'react';
 import { withRouter } from 'react-router-dom';
 import classnames from 'classnames';
 import PerfectScrollbar from 'react-perfect-scrollbar';
-import _ from 'lodash';
 import Ink from 'react-ink';
 import FolderIcon from 'mdi-react/FolderIcon';
 import { ToastStore, ToastContainer } from 'react-toasts';
@@ -171,6 +170,16 @@ class Topics extends React.Component {
     this.setState({ topicsFilters: currentTopicsFilters });
   }
 
+  _doSortBy(array, sortBy) {
+    return [...array].sort((e1, e2) => {
+      let v1 = e1[sortBy];
+      let v2 = e2[sortBy];
+      if(v1 < v2) return -1;
+      if(v1 > v2) return 1;
+      return 0;
+    });
+  }
+
   _navigateToFolder(folder) {
     const { topicsFilters } = this.state;
     topicsFilters.folder = folder.id || folder;
@@ -179,10 +188,10 @@ class Topics extends React.Component {
   }
 
   _renderTopics(topics) {
-    let sorted = _.sortBy(topics, this.state.topicsFilters.sortBy);
+    let sorted = this._doSortBy(topics, this.state.topicsFilters.sortBy);
     if ((this.state.topicsFilters.sortBy !== 'id' && !this.state.topicsFilters.reverseSort)
       || (this.state.topicsFilters.reverseSort && this.state.topicsFilters.sortBy === 'id')) {
-      sorted = _.reverse(sorted);
+	sorted = sorted.reverse();
     }
     return (
       <tbody>
@@ -257,13 +266,13 @@ class Topics extends React.Component {
         }
       });
 
-    folders = _.sortBy(folders, this.state.topicsFilters.sortBy);
-    finalTopics = _.sortBy(finalTopics, this.state.topicsFilters.sortBy);
+    folders = this._doSortBy(folders, this.state.topicsFilters.sortBy);
+    finalTopics = this._doSortBy(finalTopics, this.state.topicsFilters.sortBy);
 
     if ((this.state.topicsFilters.sortBy !== 'id' && !this.state.topicsFilters.reverseSort)
       || (this.state.topicsFilters.reverseSort && this.state.topicsFilters.sortBy === 'id')) {
-      folders = _.reverse(folders);
-      finalTopics = _.reverse(finalTopics);
+      folders = folders.reverse();
+      finalTopics = finalTopics.reverse();
     }
 
     return (
@@ -285,7 +294,7 @@ class Topics extends React.Component {
       {folders.map(folder => (
         <tr className="pointer" onClick={this._navigateToFolder.bind(this, folder)}>
           <td className="text-left flex align-center">
-            <FolderIcon width={20} className="folder-icon"/>
+            <FolderIcon size={20} className="folder-icon"/>
             <span className="margin-left-8px">{folder.id}</span>
             <span className="folder-stat">
                 {folder.topics.length}

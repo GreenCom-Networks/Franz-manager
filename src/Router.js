@@ -3,7 +3,6 @@
  */
 
 import React from 'react';
-import { hot } from 'react-hot-loader/root';
 import {
   BrowserRouter, Switch, Route, Redirect,
 } from 'react-router-dom';
@@ -17,32 +16,32 @@ import ConsumersView from './views/consumers/Consumers';
 import ConsumerView from './views/consumers/consumer/Consumer';
 import Topnav from './components/topnav/Topnav';
 
-
 const routes = () => {
-  const baseUrl = document.querySelectorAll('base')[0].attributes['href'].value;
-  return <BrowserRouter basename={baseUrl}>
-    <div className="document-wrapper">
-      <Topnav/>
-      <div className="page-wrapper">
-        <Sidenav/>
-        <div className="content-wrapper">
-          <Switch>
-            <Route
-              exact
-              path="/"
-              render={() => <Redirect to="/dashboard"/>}
-            />
-            <Route exact path="/dashboard" component={DashboardView}/>
-            <Route exact path="/cluster" component={ClusterView}/>
-            <Route exact path="/topics" component={TopicsView}/>
-            <Route exact path="/topics/:topicId" component={TopicView}/>
-            <Route exact path="/consumers" component={ConsumersView}/>
-            <Route exact path="/consumers/:consumerId" component={ConsumerView}/>
-          </Switch>
+  const baseUrl = document.querySelector('base').attributes['href'].value;
+  return (
+    <BrowserRouter basename={baseUrl}>
+      <div className="document-wrapper">
+        <Topnav/>
+        <div className="page-wrapper">
+          <Sidenav/>
+          <div className="content-wrapper">
+            <Switch>
+              <Route exact path="/" render={() => <Redirect to="/dashboard"/>}/>
+              <Route exact path="/dashboard" component={DashboardView}/>
+              <Route exact path="/cluster" component={ClusterView}/>
+              <Route exact path="/topics" component={TopicsView}/>
+              <Route exact path="/topics/:topicId" component={TopicView}/>
+              <Route exact path="/consumers" component={ConsumersView}/>
+              <Route exact path="/consumers/:consumerId" component={ConsumerView}/>
+            </Switch>
+          </div>
         </div>
       </div>
-    </div>
-  </BrowserRouter>;
+    </BrowserRouter>
+  );
 };
+
+
+const hot = (process.env.NODE_ENV === 'development') ? require('react-hot-loader/root').hot : _ => _;
 
 export default hot(routes);
