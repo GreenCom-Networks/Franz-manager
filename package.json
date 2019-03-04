@@ -50,7 +50,7 @@
     "react-perfect-scrollbar": "^1.4.4",
     "react-portal": "^4.2.0",
     "react-router-dom": "^4.1.1",
-    "react-toasts": "^2.0.14",
+    "react-toasts": "^3.0.0",
     "react-tooltip": "^3.9.2",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.1",

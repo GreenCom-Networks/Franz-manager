@@ -1,5 +1,7 @@
 ### Franz-manager
 
+Discover more on the fancy [franz-manager.io](https://www.franz-manager.io/) !
+
 This application cannot work without the franz-manager-api --> [github](https://github.com/GreenCom-Networks/Franz-manager-api), [dockerhub](https://hub.docker.com/r/greencomnetworks/franz-manager-api)
 
 This application is a smooth alternative to kafka-manager. **It needs JMX to be enabled on your kafka server.**
