@@ -2,7 +2,10 @@ import ApiService from './ApiService';
 
 export default {
   getClusters() {
-    return new Promise((resolve, reject) => {
+    return ApiService.requestFranzManagerApi('GET', '/clusters');
+    // Is it really important to use the cache here?
+/*    return new Promise((resolve, reject) => {
+      
       if (localStorage.getItem('clusters')) {
         resolve(JSON.parse(localStorage.getItem('clusters')));
       }
@@ -16,13 +19,14 @@ export default {
         })
         .catch(reject);
     });
+*/
   },
 
   getSelectedClusterId() {
-    return localStorage.getItem('selectedClusterId');
+    return window.localStorage.getItem('selectedClusterId');
   },
 
   setSelectedClusterId(clusterId) {
-    localStorage.setItem('selectedClusterId', clusterId);
+    window.localStorage.setItem('selectedClusterId', clusterId);
   },
 };

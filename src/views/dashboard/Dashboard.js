@@ -83,23 +83,27 @@ class Dashboard extends React.Component {
     });
     let clusters;
     ClustersService.getClusters()
-      .then(cs => Promise.all(cs.map(c => new Promise((resolve) => {
-        BrokersService.getBrokers(c.name, true)
-          .then((brokers) => {
-            const cluster = c;
+      .then(clusters => Promise.all(clusters.map(cluster => {
+        return BrokersService.getBrokers(cluster.name, true)
+          .then(brokers => {
             cluster.brokers = brokers;
-            cluster.zookeepers = brokers[0].configurations['zookeeper.connect'].split('/')[0].split(',')
-              .map((z) => {
-                const splitted = z.split(':');
-                return {
-                  id: splitted[0] === 'localhost' ? '1' : splitted[0].split('.')[3],
-                  host: splitted[0],
-                  port: Number(splitted[1]),
-                };
-              });
-            resolve(cluster);
+	    cluster.zookeepers = [];
+	    if(cluster.zookeeperConnectString) {
+	      const [connectString, path] = cluster.zookeeperConnectString.split('/', 2);
+	      if(connectString) {
+		cluster.zookeepers = connectString.split(',').map(node => {
+		  const [host, port] = node.split(':', 2);
+		  return {
+		    id: '', // TODO: assign proper id. (can't base it on ipv4)
+		    host: host,
+		    port: port ? Number(port) : 2181
+		  };
+		});
+	      }
+	    }
+            return cluster;
           });
-      }))))
+      })))
       .then((c) => {
         clusters = c;
         return this._loadMetrics();
@@ -111,6 +115,8 @@ class Dashboard extends React.Component {
           loading: false
         });
         this._initCanvas();
+      }).catch(err => {
+	console.error(err);
       });
   }
 
