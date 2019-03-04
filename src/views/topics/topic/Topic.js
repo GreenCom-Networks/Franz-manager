@@ -249,7 +249,7 @@ class Topic extends Component {
           loadingPartitions: false
         });
       })
-      .catch(() => {
+      .catch(err => {
         this.setState({
           loadingPartitions: false,
           errorLoadingPartitions: true

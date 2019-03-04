@@ -80,14 +80,15 @@ export default {
   },
 
   getTopicPartitions(topicId) {
-    return new Promise((resolve, reject) => {
-      ApiService.requestFranzManagerApi('GET', `/topics/${topicId}/partitions`, null)
-        .then((tPartitions) => {
+      return ApiService.requestFranzManagerApi('GET', `/topics/${topicId}/partitions`, null)
+      .then((tPartitions) => {
+	/*
           const cluster = localStorage.getItem('selectedClusterId');
           let topicsPartitions = {};
           if (cluster) {
             try {
               topicsPartitions = JSON.parse(localStorage.getItem(`${cluster}-topicsPartitions`));
+	      
             } catch (e) {
               topicsPartitions = {};
             }
@@ -95,10 +96,10 @@ export default {
           }
           topicsPartitions[topicId] = tPartitions;
           localStorage.setItem(`${cluster}-topicsPartitions`, JSON.stringify(topicsPartitions));
-          return resolve(tPartitions);
-        })
-        .catch(reject);
-    });
+          return tPartitions;
+	*/
+	return tPartitions; // TODO: do we need to cache this information?
+        });
   },
 
   addTopicPartitions(topicId, quantity) {
