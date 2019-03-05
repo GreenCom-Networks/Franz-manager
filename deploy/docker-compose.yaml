@@ -1,0 +1,25 @@
+version: "3"
+
+services:
+
+  franz-manager:
+    image: greencomnetworks/franz-manager
+    restart: on-failure
+    environment:
+      - SERVER_URL=http://0.0.0.0:1337/franz-manager-api
+      - WEBSOCKET_SERVER_URL=ws://0.0.0.0:1337/franz-manager-api
+    ports:
+      - 8080:80
+    depends_on:
+      - franz-manager-api
+
+  franz-manager-api:
+    image: greencomnetworks/franz-manager-api
+    restart: on-failure
+    environment:
+      - LOG_LEVEL=warn
+      - JVM_HEAP_SIZE
+      - KAFKA_CONF
+    ports:
+      - 1337:1337
+      - 5443:5443
