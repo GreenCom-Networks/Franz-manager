@@ -58,7 +58,7 @@ export default {
 
   getTopicDetails(topicId) {
     return new Promise((resolve, reject) => {
-      ApiService.requestFranzManagerApi('GET', `/topics/${topicId}`, null)
+      ApiService.requestFranzManagerApi('GET', `/topics/${topicId}`)
         .then((tDetails) => {
           const cluster = localStorage.getItem('selectedClusterId');
           let topicsDetails = {};

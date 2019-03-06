@@ -288,7 +288,7 @@ class Topic extends Component {
       })
       .catch((e) => {
         console.log(e);
-        if (e.message.includes('No message for this topic.')) {
+        if (e.value.includes('No message for this topic.')) {
           this.setState({
             loadingMessages: false,
             messages: [],
@@ -535,12 +535,12 @@ class Topic extends Component {
       if (this.state.filterByRegexp) {
         try {
           const regexp = new RegExp(this.state.filter);
-          messages = messages.filter(m => this.state.filterByKey ? (m.key || '').match(regexp) : m.message.match(regexp));
+          messages = messages.filter(m => this.state.filterByKey ? (m.key || '').match(regexp) : m.value.match(regexp));
         } catch (e) {
           messages = [];
         }
       } else {
-        messages = messages.filter(m => this.state.filterByKey ? (m.key || '').includes(this.state.filter) : m.message.includes(this.state.filter));
+        messages = messages.filter(m => this.state.filterByKey ? (m.key || '').includes(this.state.filter) : m.value.includes(this.state.filter));
       }
     }
     const totalMessages = messages.length;
@@ -594,7 +594,7 @@ class Topic extends Component {
                       {message.partition}
                     </div>
                     <Tooltip content="Copy message">
-                      <div className="copy-icon" onClick={copyJSON.bind(this, message.message)}>
+                      <div className="copy-icon" onClick={copyJSON.bind(this, message.value)}>
                         <CopyIcon/>
                         <Ink/>
                       </div>
@@ -602,15 +602,25 @@ class Topic extends Component {
                   </header>
                   {(() => {
                     if (this.state.showMessagesHeaders) {
-                      return Object.keys(message.headers).length > 0 ?
-                        <JSONPretty json={JSON.stringify(message.headers)}/> :
-                        <div className="no-headers">no headers.</div>;
+                      if(Object.keys(message.headers).length > 0) {
+                        const headers = message.headers;
+                        for(const key in Object.keys(headers)) {
+                          const values = headers[key];
+                          if(values && values.length == 1) headers[key] = values[0];
+                        }
+                        try {
+                          return <JSONPretty json={headers}/>;
+                        } catch(e) {
+                          return <div className="simple-message">{headers}</div>; // Shoudln't happen?
+                        }
+                      } else {
+                        return <div className="no-headers">no headers.</div>;
+                      }
                     } else {
                       try {
-                        JSON.parse(message.message);
-                        return <JSONPretty json={message.message}/>;
+                        return <JSONPretty json={message.value}/>;
                       } catch (e) {
-                        return <div className="simple-message">{message.message}</div>;
+                        return <div className="simple-message">{message.value}</div>;
                       }
                     }
                   })()}
