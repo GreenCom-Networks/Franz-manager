@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Franz-manager-api-doc</title>
+    <meta charset="utf-8">
+    <link rel="icon" type="image/svg" href='favicon.svg'>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.20.9/swagger-ui.css">
+  </head>
+  <body>
+    <div id="swagger-ui"></div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.20.9/swagger-ui-bundle.js"></script>
+
+    <script>
+      let baseURI = location.origin + location.pathname;
+      if(baseURI.endsWith('/')) baseURI = baseURI.slice(0, baseURI.length-1);
+      console.log(baseURI);
+      window.ui = SwaggerUIBundle({
+	url: baseURI + '/openapi.json',
+	dom_id: '#swagger-ui',
+	presets: [
+          SwaggerUIBundle.presets.apis
+        ],
+	plugins: [
+          SwaggerUIBundle.plugins.DownloadUrl
+        ],
+	requestInterceptor: req => {
+	  if(!req.url.endsWith('openapi.json')) { // Use relative paths
+	    const url = new URL(req.url);
+	    const newUrl = new URL(baseURI + '/..' + url.pathname);
+	    req.url = newUrl.href;
+	  }
+	  return req;
+	},
+	showMutatedRequest: true
+      });
+    </script>
+  </body>
+</html>

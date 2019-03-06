@@ -1,0 +1,618 @@
+{
+  "openapi": "3.0.2",
+  "info": {
+    "title": "franz-manager-api",
+    "description": "A multi-cluster Kafka Administration Tool",
+    "version": "1.1",
+    "contact": {
+      "name": "GreenCom-Networks"
+    },
+    "license": {
+      "name": "EPL-2.0",
+      "url": "https://raw.githubusercontent.com/GreenCom-Networks/Franz-manager-api/master/LICENSE.txt"
+    }
+  },
+  "components": {
+    "schemas": {
+      "Cluster": {
+        "type": "object",
+        "required": ["name", "brokersConnectString", "jmxConnectString", "zookeeperConnectString"],
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "brokersConnectString": {
+            "type": "string"
+          },
+          "jmxConnectString": {
+            "type": "string"
+          },
+          "zookeeperConnectString": {
+            "type": "string"
+          }
+        }
+      },
+      "Broker": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "host": {
+            "type": "string"
+          },
+          "port": {
+            "type": "integer"
+          },
+          "jmxPort": {
+            "type": "integer"
+          },
+          "configurations": {
+            "$ref": "#/components/schemas/Configurations"
+          },
+          "state": {
+            "$ref": "#/components/schemas/BrokerState"
+          }
+        }
+      },
+      "BrokerId": {
+        "type": "integer"
+      },
+      "BrokerState": {
+        "type": "string",
+        "enum": ["OK", "UNSTABLE", "BROKEN"]
+      },
+      "Topic": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "partitions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Partition"
+            }
+          },
+          "configurations": {
+            "$ref": "#/components/schemas/Configurations"
+          }
+        }
+      },
+      "Partition": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string"
+          },
+          "partition": {
+            "type": "integer"
+          },
+          "beginningOffset": {
+            "type": "integer"
+          },
+          "endOffset": {
+            "type": "integer"
+          },
+          "leader": {
+            "$ref": "#/components/schemas/BrokerId"
+          },
+          "replicas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BrokerId"
+            }
+          },
+          "inSyncReplicas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BrokerId"
+            }
+          },
+          "offlineReplicas": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BrokerId"
+            }
+          }
+        }
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+	  "topic": {
+	    "type": "string"
+	  },
+          "partition": {
+            "type": "integer"
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "timestamp": {
+            "type": "integer"
+          },
+          "headers": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "array",
+	      "items": {
+		"type": "string"
+	      }
+            }
+          },
+          "key": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "ConsumerOffsetRecord": {
+        "type": "object",
+        "properties": {
+          "group": {
+            "type": "string"
+          },
+          "topic": {
+            "type": "string"
+          },
+          "partition": {
+            "type": "integer"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "offset": {
+            "type": "integer"
+          },
+          "leaderEpoch": {
+            "type": "integer"
+          },
+          "metadata": {
+            "type": "string"
+          },
+          "commitTimestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "expireTimestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "Metric": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "brokerId": {
+            "$ref": "#/components/schemas/BrokerId"
+          },
+          "metrics": {
+            "type": "object",
+            "additionalProperties": {}
+          }
+        }
+      },
+      "TopicCreation": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "partitions": {
+            "type": "integer"
+          },
+          "replications": {
+            "type": "integer"
+          },
+          "configurations": {
+            "$ref": "#/components/schemas/Configurations"
+          }
+        }
+      },
+      "Configurations": {
+        "type": "object",
+        "additionalProperties": {
+          "type": "string"
+        }
+      }
+    },
+    "parameters": {
+      "ClusterId": {
+        "name": "ClusterId",
+        "in": "header",
+        "schema": {
+          "type": "string"
+        }
+      },
+      "topic": {
+        "name": "topic",
+        "in": "path",
+        "required": true,
+        "schema": {
+          "type": "string"
+        }
+      }
+    }
+  },
+  "paths": {
+    "/clusters": {
+      "get": {
+        "tags": ["Clusters"],
+        "summary": "List clusters",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Cluster"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/brokers": {
+      "get": {
+        "tags": ["Brokers"],
+        "summary": "List brokers",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Broker"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ClusterId"
+        }
+      ]
+    },
+    "/brokers/{brokerId}": {
+      "get": {
+        "tags": ["Brokers"],
+        "summary": "Retrieve broker",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Broker"
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ClusterId"
+        },
+        {
+          "name": "brokerId",
+          "in": "path",
+          "required": true,
+          "type": "string",
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/topics": {
+      "get": {
+        "tags": ["Topics"],
+        "summary": "List topics",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Topic"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "idOnly",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          },
+          {
+            "name": "shortVersion",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ]
+      },
+      "post": {
+        "tags": ["Topics"],
+        "summary": "Create topic",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Topic"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ClusterId"
+        }
+      ]
+    },
+    "/topics/{topic}": {
+      "get": {
+        "tags": ["Topics"],
+        "summary": "Retrieve topic",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Topic"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": ["Topics"],
+        "summary": "Update topic configuration",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Configurations"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Topics"],
+        "summary": "Delete topic",
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ClusterId"
+        },
+        {
+          "$ref": "#/components/parameters/topic"
+        }
+      ]
+    },
+    "/topics/{topic}/partitions": {
+      "get": {
+        "tags": ["Topics"],
+        "summary": "List partitions",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Partition"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Topics"],
+        "summary": "Add partitions",
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "parameters": [
+          {
+            "name": "quantity",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "integer"
+            }
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ClusterId"
+        },
+        {
+          "$ref": "#/components/parameters/topic"
+        }
+      ]
+    },
+    "/consumers": {
+      "get": {
+        "tags": ["Consumers"],
+        "summary": "List consumers",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/ConsumerOffsetRecord"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "group",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "topic",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ClusterId"
+        }
+      ]
+    },
+    "/metrics": {
+      "get": {
+        "tags": ["Metrics"],
+        "summary": "List metrics",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Metric"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "metricLocation",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "metricType",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "metricName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "additional",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ]
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ClusterId"
+        }
+      ]
+    },
+    "/metrics/topics": {
+      "get": {
+        "tags": ["Metrics"],
+        "summary": "",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "$ref": "#/components/schemas/Metric"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/ClusterId"
+        }
+      ]
+    }
+  }
+}
