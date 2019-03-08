@@ -32,17 +32,16 @@ import java.util.stream.Collectors;
 public class TopicsResource {
     private static final Logger logger = LoggerFactory.getLogger(TopicsResource.class);
 
-    Cluster cluster;
+    private Cluster cluster;
 
     public TopicsResource(@HeaderParam("clusterId") String clusterId) {
         this.cluster = ClustersService.getCluster(clusterId);
-        if (this.cluster == null) {
-            throw new NotFoundException("Cluster not found for id " + clusterId);
-        }
     }
 
     @GET
     public List<Topic> getTopics(@QueryParam("idOnly") boolean idOnly, @QueryParam("shortVersion") boolean shortVersion) {
+        if(cluster == null) throw new NotFoundException("Cluster not found");
+
         AdminClient adminClient = AdminClientService.getAdminClient(cluster);
 
         Set<String> topics;
@@ -122,6 +121,8 @@ public class TopicsResource {
 
     @POST
     public Response createTopic(TopicCreation topic) {
+        if(cluster == null) throw new NotFoundException("Cluster not found");
+
         AdminClient adminClient = AdminClientService.getAdminClient(cluster);
         if (topicExist(adminClient, topic.id)) {
             throw new ConflictException("This topic (" + topic.id + ") already exist.");
@@ -152,6 +153,8 @@ public class TopicsResource {
     @GET
     @Path("/{topicId}")
     public Topic getTopic(@PathParam("topicId") String topicId) {
+        if(cluster == null) throw new NotFoundException("Cluster not found");
+
         // NOTE: the calls are in sequence instead of being in parallel, which leads to a slower response time, but I don't think it's really an issue here...
         //                                 - lgaillard 01/08/2018
         AdminClient adminClient = AdminClientService.getAdminClient(cluster);
@@ -168,6 +171,8 @@ public class TopicsResource {
     @PUT
     @Path("/{topicId}")
     public Response updateTopicConfig(@PathParam("topicId") String topicId, Map<String, String> configurations) {
+        if(cluster == null) throw new NotFoundException("Cluster not found");
+
         AdminClient adminClient = AdminClientService.getAdminClient(cluster);
         if (!topicExist(adminClient, topicId)) {
             throw new NotFoundException("This topic (" + topicId + ") doesn't exist.");
@@ -192,6 +197,8 @@ public class TopicsResource {
     @DELETE
     @Path("/{topicId}")
     public Response deleteTopic(@PathParam("topicId") String topicId) {
+        if(cluster == null) throw new NotFoundException("Cluster not found");
+
         AdminClient adminClient = AdminClientService.getAdminClient(cluster);
         if (!topicExist(adminClient, topicId)) {
             throw new NotFoundException("This topic (" + topicId + ") doesn't exist.");
@@ -210,6 +217,8 @@ public class TopicsResource {
     @GET
     @Path("/{topicId}/partitions")
     public List<Partition> getTopicPartitions(@PathParam("topicId") String topicId) {
+        if(cluster == null) throw new NotFoundException("Cluster not found");
+
         AdminClient adminClient = AdminClientService.getAdminClient(cluster);
         if (!topicExist(adminClient, topicId)) {
             throw new NotFoundException("This topic (" + topicId + ") doesn't exist.");
@@ -221,6 +230,8 @@ public class TopicsResource {
     @POST
     @Path("/{topicId}/partitions")
     public Response postTopicPartitions(@PathParam("topicId") String topicId, @QueryParam("quantity") Integer quantity) {
+        if(cluster == null) throw new NotFoundException("Cluster not found");
+
         AdminClient adminClient = AdminClientService.getAdminClient(cluster);
         TopicDescription topicDescription = KafkaUtils.describeTopic(adminClient, topicId);
         if (topicDescription == null) {

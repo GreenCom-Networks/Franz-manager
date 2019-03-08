@@ -38,13 +38,12 @@ public class BrokersResource {
 
     public BrokersResource(@HeaderParam("clusterId") String clusterId) {
         this.cluster = ClustersService.getCluster(clusterId);
-        if (this.cluster == null) {
-            throw new NotFoundException("Cluster not found for id " + clusterId);
-        }
     }
 
     @GET
     public List<Broker> getBrokers(@QueryParam("withConfiguration") boolean withConfiguration) {
+        if(cluster == null) throw new NotFoundException("Cluster not found");
+
         AdminClient adminClient = AdminClientService.getAdminClient(cluster);
         List<Broker> knownBrokers = BrokersService.getKnownKafkaBrokers(cluster);
 
@@ -82,6 +81,8 @@ public class BrokersResource {
     @GET
     @Path("/{brokerId}")
     public Broker getBroker(@PathParam("brokerId") String brokerId) {
+        if(cluster == null) throw new NotFoundException("Cluster not found");
+
         AdminClient adminClient = AdminClientService.getAdminClient(cluster);
         HashMap<String, JMXConnector> jmxConnector = KafkaMetricsService.getJmxConnectors(cluster);
         try {

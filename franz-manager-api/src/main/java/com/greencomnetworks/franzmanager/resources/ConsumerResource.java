@@ -18,19 +18,18 @@ import java.util.Collection;
 @Consumes(MediaType.APPLICATION_JSON)
 @Produces(MediaType.APPLICATION_JSON)
 public class ConsumerResource {
-    private static final Logger log = LoggerFactory.getLogger(ConsumerResource.class);
+    private static final Logger logger = LoggerFactory.getLogger(ConsumerResource.class);
 
-    Cluster cluster;
+    private Cluster cluster;
 
     public ConsumerResource(@HeaderParam("clusterId") String clusterId){
         this.cluster = ClustersService.getCluster(clusterId);
-        if(this.cluster == null){
-            throw new NotFoundException("Cluster not found for id " + clusterId);
-        }
     }
 
     @GET
     public Collection<ConsumerOffsetRecord> get(@QueryParam("group") String group, @QueryParam("topic") String topic){
+        if(cluster == null) throw new NotFoundException("Cluster not found");
+
         Collection<ConsumerOffsetRecord> result = KafkaConsumerOffsetReader.getInstance().getConsumerOffsetRecords(cluster);
 
         if(null != group){
@@ -44,8 +43,6 @@ public class ConsumerResource {
     }
 
     private Collection<ConsumerOffsetRecord> filterByGroup(Collection<ConsumerOffsetRecord> consumerOffsetRecords, String group){
-        log.info("filterByGroup: size is " + consumerOffsetRecords.size());
-
         Collection<ConsumerOffsetRecord> result = new ArrayList<>();
 
         for(ConsumerOffsetRecord record : consumerOffsetRecords){
@@ -54,12 +51,10 @@ public class ConsumerResource {
             }
         }
 
-        log.info("filterByGroup: size is now " + result.size());
         return result;
     }
 
     private Collection<ConsumerOffsetRecord> filterByTopic(Collection<ConsumerOffsetRecord> consumerOffsetRecords, String topic){
-        log.info("filterByTopic: size is " + consumerOffsetRecords.size());
         Collection<ConsumerOffsetRecord> result = new ArrayList<>();
 
         for(ConsumerOffsetRecord record : consumerOffsetRecords){
@@ -68,7 +63,6 @@ public class ConsumerResource {
             }
         }
 
-        log.info("filterByTopic: size is now " + result.size());
         return result;
     }
 }

@@ -6,7 +6,6 @@ import com.greencomnetworks.franzmanager.services.AdminClientService;
 import com.greencomnetworks.franzmanager.services.ClustersService;
 import com.greencomnetworks.franzmanager.utils.FUtils;
 import com.greencomnetworks.franzmanager.utils.KafkaUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.admin.AdminClient;
 import org.apache.kafka.clients.admin.TopicDescription;
 import org.apache.kafka.clients.consumer.*;
@@ -19,7 +18,6 @@ import org.slf4j.LoggerFactory;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;
@@ -35,14 +33,13 @@ public class MessagesResource {
 
     public MessagesResource(@HeaderParam("clusterId") String clusterId){
         this.cluster = ClustersService.getCluster(clusterId);
-        if(this.cluster == null){
-            throw new NotFoundException("Cluster not found for id " + clusterId);
-        }
     }
     @GET
     public List<Message> getMessages(@PathParam("topicId") String topicId,
                               @DefaultValue("10") @QueryParam("quantity") Integer quantity,
                               @QueryParam("from") Long from) {
+        if(cluster == null) throw new NotFoundException("Cluster not found");
+
         AdminClient adminClient = AdminClientService.getAdminClient(cluster);
         TopicDescription topicDescription = KafkaUtils.describeTopic(adminClient, topicId);
         if (topicDescription == null) {
