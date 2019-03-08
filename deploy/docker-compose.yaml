@@ -6,6 +6,7 @@ services:
     image: greencomnetworks/franz-manager
     restart: on-failure
     environment:
+      - FRONT_BASEPATH
       - SERVER_URL=${SERVER_URL?SERVER_URL missing}
       - WEBSOCKET_SERVER_URL=${WEBSOCKET_SERVER_URL?WEBSOCKET_SERVER_URL missing}
     ports:
@@ -21,6 +22,7 @@ services:
       - JVM_HEAP_SIZE
       - API_LISTENER_WORKERS_CORE
       - API_LISTENER_WORKERS_MAX
+      - API_BASEPATH
       - API_PORT=8080
       - WS_PORT=8081
       - KAFKA_CONF=${KAFKA_CONF:?KAFKA_CONF missing}
