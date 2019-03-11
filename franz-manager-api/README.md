@@ -1,16 +1,12 @@
-### Franz-manager-api
-
-Discover more on the fancy [franz-manager.io](https://www.franz-manager.io/) !
-
-This api should work with the front-end franz-manager --> [github](https://github.com/GreenCom-Networks/Franz-manager), [dockerhub](https://hub.docker.com/r/greencomnetworks/franz-manager)
+# Franz-manager-api
+A multi-cluster Kafka Administration Tool (back-end).
+This application is a smooth alternative to kafka-manager.  
+Discover more at [franz-manager.io](https://www.franz-manager.io/) !
 
 ### Environment variables
-
-
 #### Mandatory environment variables
-
 * `KAFKA_CONF` =
-``` json
+```json
 [
      {
          "name": "cluster 1",
@@ -28,40 +24,31 @@ This api should work with the front-end franz-manager --> [github](https://githu
 ```
 
 #### Optional
-
 You might also be interested in defining the following configuration :
+* `API_PORT`: (default: 8080)
+* `WS_PORT`: (default: 8080)
+* `API_BASEPATH`: (default: /)
+* `API_LISTENER_WORKERS_CORE`: (default: 4)
+* `API_LISTENER_WORKERS_MAX`: (default: 100)
+* `LOG_LEVEL`: (default: info)
+* `JVM_HEAP_SIZE`: Maximum heap size available for the JVM (default: 1024)
 
-* `JVM_HEAP_SIZE` (ie -> 512)
-
-* `LOG_LEVEL` (ie -> warn)
-
+### Deployment
 #### Development
-
-First, install the dependencies by running `mvn clean package`.
-
-Then, run the class `FranzManagerApi.java`.
-
-Api should be available at localhost:1337
-
-Apidoc can be found here --> [localhost:1337/franz-manager-api/apidoc/](http://localhost:1337/franz-manager-api/apidoc/)
+Requires JDK 11.  
+Build: `mvn clean package`.  
+Run: `KAFKA_CONF='[]' java -jar target/franz-manager-api-jar-with-dependencies.jar`.
+The api should be available on http://localhost:8080/
+The api documentation should be available on http://localhost:8080/apidoc/
 
 #### Docker
+##### From sources
+Build: `docker build . -t franz-manager-api`
+Run: `docker run -e KAFKA_CONF='[]' -p 8080:8080 franz-manager-api`
+The api should be available on http://localhost:8080/
+The api documentation should be available on http://localhost:8080/apidoc/
 
-###### From sources
-
-Install dependencies like previous step.
-
-Build your docker : `docker build -t franz-manager-api .`
-
-Then run it : `docker run -e KAFKA_CONF='[]' -p 1337:1337 -p 5443:5443 franz-manager-api`
-
-Api should be available at localhost:1337
-
-Apidoc can be found here --> [localhost:1337/franz-manager-api/apidoc/](http://localhost:1337/franz-manager-api/apidoc/)
-
-###### From docker hub
-
-`docker run -e KAFKA_CONF='[]' -p 1337:1337 -p 5443:5443 greencomnetworks/franz-manager-api`
-
-enjoy !
-
+##### From docker hub
+Run: `docker pull greencomnetworks/franz-manager-api && docker run -e KAFKA_CONF='[]' -p 8080:8080 greencomnetworks/franz-manager-api`
+The api should be available on http://localhost:8080/
+The api documentation should be available on http://localhost:8080/apidoc/

@@ -3,7 +3,10 @@ package com.greencomnetworks.franzmanager.resources;
 import com.greencomnetworks.franzmanager.entities.Broker;
 import com.greencomnetworks.franzmanager.entities.Cluster;
 import com.greencomnetworks.franzmanager.entities.Metric;
-import com.greencomnetworks.franzmanager.services.*;
+import com.greencomnetworks.franzmanager.services.BrokersService;
+import com.greencomnetworks.franzmanager.services.ClustersService;
+import com.greencomnetworks.franzmanager.services.KafkaMetricsService;
+import com.greencomnetworks.franzmanager.services.TopicMetricsService;
 import com.greencomnetworks.franzmanager.utils.FUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.math.NumberUtils;
@@ -29,9 +32,6 @@ public class MetricsResource {
 
     public MetricsResource(@HeaderParam("clusterId") String clusterId) {
         this.cluster = ClustersService.getCluster(clusterId);
-        if(this.cluster == null){
-            throw new NotFoundException("Cluster not found for id " + clusterId);
-        }
     }
 
     @GET
@@ -39,6 +39,8 @@ public class MetricsResource {
                             @QueryParam("metricType") String metricType,
                             @QueryParam("metricName") String metricName,
                             @QueryParam("additional") String additional) throws IOException, AttributeNotFoundException, MBeanException, ReflectionException, MalformedObjectNameException, ExecutionException, InterruptedException {
+        if(cluster == null) throw new NotFoundException("Cluster not found");
+
         if (StringUtils.isEmpty(metricLocation)) {
             throw new BadRequestException("Missing query parameter 'metricLocation'");
         } else if (StringUtils.isEmpty(metricType)) {
@@ -101,6 +103,7 @@ public class MetricsResource {
     @Path("/topics")
     @GET
     public Map<String, Map<String, Metric>> getTopicsMetric() {
+        if(cluster == null) throw new NotFoundException("Cluster not found");
         return TopicMetricsService.getTopicsMetrics(cluster);
     }
 }

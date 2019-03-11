@@ -100,8 +100,8 @@ public class FranzManagerApi {
         } else {
             server.start();
             wsServer.start();
-            logger.info("HTTP Server started on port {} under {}.", apiConfig.apiPort, apiConfig.basePath);
-            logger.info("WS   Server started on port {} under {}.", apiConfig.wsPort, apiConfig.basePath);
+            logger.info("HTTP Server started on port {} under {}", apiConfig.apiPort, apiConfig.basePath);
+            logger.info("WS   Server started on port {} under {}", apiConfig.wsPort, apiConfig.basePath);
         }
 
         return this;

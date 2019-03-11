@@ -17,4 +17,8 @@ ENV BASE_NGINX /usr/share/nginx/html
 COPY --from=builder /$APP/dist/ ${BASE_NGINX}/${APP}/
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-CMD sed -i "s~%SERVER_URL%~${SERVER_URL:-}~g; s~%WEBSOCKET_SERVER_URL%~${WEBSOCKET_SERVER_URL:-}~g" ${BASE_NGINX}/${APP}/app.js && nginx -g 'daemon off;'
+CMD \
+  sed -i "s~%SERVER_URL%~${SERVER_URL?SERVER_URL missing}~g; s~%WEBSOCKET_SERVER_URL%~${WEBSOCKET_SERVER_URL?WEBSOCKET_SERVER_URL missing}~g" ${BASE_NGINX}/${APP}/app.js && \
+  sed -i "s~<base href=\"/\">~<base href=\"${FRONT_BASEPATH:-/}\">~" ${BASE_NGINX}/${APP}/index.html && \
+  sed -i "s~\$FRONT_BASEPATH~${FRONT_BASEPATH:-/}~g" /etc/nginx/conf.d/default.conf && \
+  nginx -g 'daemon off;'

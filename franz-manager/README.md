@@ -1,58 +1,56 @@
-### Franz-manager
+# Franz-manager
+A multi-cluster Kafka Administration Tool (front-end).
+This application is a smooth alternative to kafka-manager.  
+Discover more at [franz-manager.io](https://www.franz-manager.io/) !  
 
-Discover more on the fancy [franz-manager.io](https://www.franz-manager.io/) !
+#### Features:
+- Multiple clusters management.
+- Inspect cluster state (topics, consumers, offsets, brokers, replicas, settings).
+- Topics listing.
+- Topics creation / deletion.
+- Detailed topic information with edition (metrics, settings, partitions, consumers, last messages).
+- Consumers listing.
+- Live consumption.
+- Bulk topic deletion.
+- Detailed consumer information (partitions, topic offset, consumer offset, lag, commit timestamp).
+- Multiple themes.
 
-This application cannot work without the franz-manager-api --> [github](https://github.com/GreenCom-Networks/Franz-manager-api), [dockerhub](https://hub.docker.com/r/greencomnetworks/franz-manager-api)
-
-This application is a smooth alternative to kafka-manager. **It needs JMX to be enabled on your kafka server.**
-
-Features : 
- - Multiple clusters management.
- - Inspect cluster state (topics, consumers, offsets, brokers, replicas, settings).
- - Topics listing.
- - Topics creation / deletion.
- - Detailed topic information with edition (metrics, settings, partitions, consumers, last messages).
- - Consumers listing.
- - Live consumption (disabled, should come back soon).
- - Bulk topic deletion.
- - Detailed consumer information (partitions, topic offset, consumer offset, lag, commit timestamp).
- - Multiple themes.
- 
-#### Screenshots
-
+### Screenshots
 ###### Dashboard view
-![dashboard view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/dashboard_view.jpg?raw=true)
+![dashboard view](https://github.com/GreenCom-Networks/franz-manager/blob/master/documentation/images/dashboard_view.jpg?raw=true)
 ###### Cluster view (theme cashmachine)
-![cluster view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/cluster_view.jpg?raw=true)
+![cluster view](https://github.com/GreenCom-Networks/franz-manager/blob/master/documentation/images/cluster_view.jpg?raw=true)
 ###### Cluster view (theme terminal)
-![cluster view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/cluster_view_terminal.jpg?raw=true)
+![cluster view](https://github.com/GreenCom-Networks/franz-manager/blob/master/documentation/images/cluster_view_terminal.jpg?raw=true)
 ###### Cluster view (theme ratatouille)
-![cluster view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/cluster_view_ratatouille.jpg?raw=true)
+![cluster view](https://github.com/GreenCom-Networks/franz-manager/blob/master/documentation/images/cluster_view_ratatouille.jpg?raw=true)
 ###### Topics view
-![topics view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/topics_view.jpg?raw=true)
+![topics view](https://github.com/GreenCom-Networks/franz-manager/blob/master/documentation/images/topics_view.jpg?raw=true)
 ###### Topic view
-![topic view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/topic_view.jpg?raw=true)
+![topic view](https://github.com/GreenCom-Networks/franz-manager/blob/master/documentation/images/topic_view.jpg?raw=true)
 ###### Consumer view
-![consumer view](https://github.com/GreenCom-Networks/Franz-manager/blob/master/demo_assets/consumer_view.jpg?raw=true)
+![consumer view](https://github.com/GreenCom-Networks/franz-manager/blob/master/documentation/images/consumer_view.jpg?raw=true)
 
+### Environment variables
+#### Mandatory environment variables
+* `SERVER_URL`: The URL of the api (exemple: http://localhost:8080/)
+* `WEBSOCKET_SERVER_URL`: The URL of the websocket server (exemple: [ws://localhost:8080/](ws://localhost:8080/))
+
+#### Optional
+* `FRONT_BASEPATH`: (default: /)
+
+### Deployment
 #### Development
-
-First, install the dependencies by running `npm install` or `yarn install`.
-
-Then, run `npm start`, the command will execute a local server on port 8080.
-
-Finally just go on localhost:8080 and enjoy.
-
-#### Production
-
-Install the dependencies (`npm install` or `yarn install`) then run `npm run build`.
-It will produce a dist folder at the root of the project.
+Build: `npm i`
+Run: `SERVER_URL='http://0.0.0.0:8080/' WEBSOCKET_SERVER_URL='ws://0.0.0.0:8080/' npm start`
+A development webserver should be started, with hot reload on code modification, and a browser tab should be open with the dashboard of the application.
 
 #### Docker
+##### From sources
+Build: `docker build . -t franz-manager`
+Run: `docker run -e SERVER_URL='http://0.0.0.0:8080/' -e WEBSOCKET_SERVER_URL='ws://0.0.0.0:8080/' -p 80:80 franz-manager`
+The frontend should be available on http://localhost/
 
-Build your docker : `docker build -t franz-manager .`
-
-Then run it : `docker run -e SERVER_URL=https://API_URL.net/franz-manager-api -p 8080:80 franz-manager`
-(don't forget /franz-manager-api at the end of the url)
-
-App should be available at localhost:8080
+##### From docker hub
+Run: `docker pull greencomnetworks/franz-manager && docker run -e SERVER_URL='http://0.0.0.0:8080/' -e WEBSOCKET_SERVER_URL='ws://0.0.0.0:8080/' -p 80:80 greencomnetworks/franz-manager`
+The frontend should be available on http://localhost/
