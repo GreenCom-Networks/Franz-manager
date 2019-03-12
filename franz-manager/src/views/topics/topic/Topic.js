@@ -288,7 +288,7 @@ class Topic extends Component {
       })
       .catch((e) => {
         console.log(e);
-        if (e.value.includes('No message for this topic.')) {
+        if (e.message.includes('No message for this topic.')) {
           this.setState({
             loadingMessages: false,
             messages: [],
