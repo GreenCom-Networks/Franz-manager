@@ -16,20 +16,15 @@ module.exports = {
       ]
     }
   },
-  optimization: {
-    minimize: false
-  },
   performance: {
     maxEntrypointSize: 2097152,
     maxAssetSize: 4194304
   },
   plugins: [
     new webpack.DefinePlugin({
-      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV || 'development'),
-      'SERVER_URL': JSON.stringify(process.env.SERVER_URL || ''),
-      'WEBSOCKET_SERVER_URL': JSON.stringify(process.env.WEBSOCKET_SERVER_URL || '')
+      'process.env.SERVER_URL': JSON.stringify(process.env.SERVER_URL || ''),
+      'process.env.WEBSOCKET_SERVER_URL': JSON.stringify(process.env.WEBSOCKET_SERVER_URL || '')
     }),
-    new webpack.optimize.AggressiveMergingPlugin(), //Merge chunks
     new CustomThemesGenerationPlugin(path.resolve(__dirname, 'src/assets/themes'))
   ],
   entry: {

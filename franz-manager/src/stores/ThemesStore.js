@@ -1,10 +1,10 @@
-import WatchableStore from 'watchable-stores';
+import { WatchableStore } from 'watchable-stores';
 import jsonTheme from '../assets/themes/themes.json';
 
 const ThemesStore = () => {
   const themeName = localStorage.getItem('theme') || 'theme-cashmachine';
 
-  const store = WatchableStore({
+  const store = new WatchableStore({
     action: '',
     theme: jsonTheme.find(t => t.file === themeName),
   });

@@ -8,7 +8,7 @@ import { ToastsStore, ToastsContainer } from 'react-toasts';
 import PropTypes from 'prop-types';
 
 import querystring from 'querystring';
-import Link from 'react-router-dom/es/Link';
+import { Link } from 'react-router-dom';
 import Loader from '../../components/loader/Loader';
 import Switch from '../../components/switch/Switch';
 import Error from '../../components/error/Error';

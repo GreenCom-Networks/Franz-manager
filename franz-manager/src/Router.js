@@ -41,7 +41,4 @@ const routes = () => {
   );
 };
 
-
-const hot = (process.env.NODE_ENV === 'development') ? require('react-hot-loader/root').hot : _ => _;
-
-export default hot(routes);
+export default routes;

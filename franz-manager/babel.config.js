@@ -1,16 +1,18 @@
 module.exports = function(api) {
+  api.cache(true);
+  
   const presets = [
-    ["@babel/preset-env", { "useBuiltIns": "entry" }],
+    ["@babel/preset-env", { "useBuiltIns": "entry", "corejs": 3 }],
     "@babel/preset-react",
   ];
 
-  const plugins = ["@babel/plugin-proposal-class-properties"];
-  if(api.env("development")) {
-    plugins.push("react-hot-loader/babel");
-  }
+  const plugins = [
+    "@babel/plugin-proposal-class-properties"
+  ];
   
   return {
     presets,
-    plugins
+    plugins,
+    comments: false
   };
 };

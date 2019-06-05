@@ -1,5 +1,3 @@
-import "@babel/polyfill";
-
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Router from './Router';
@@ -31,4 +29,3 @@ import ThemesStore from './stores/ThemesStore';
 ThemesStore.initTheme();
 
 ReactDOM.render(<Router />, document.getElementById('root'));
-

@@ -1,6 +1,6 @@
 import React from 'react';
 import PerfectScrollbar from 'react-perfect-scrollbar';
-import Link from 'react-router-dom/es/Link';
+import { Link } from 'react-router-dom';
 import Loader from '../../components/loader/Loader';
 import ConsumersService from '../../services/ConsumersService';
 import Error from '../../components/error/Error';
