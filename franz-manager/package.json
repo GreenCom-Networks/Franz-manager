@@ -22,7 +22,7 @@
   },
   "main": "src/index.js",
   "scripts": {
-    "start": "NODE_ENV=development webpack-dev-server --config webpack.dev.js --hot --open",
+    "start": "NODE_ENV=development webpack-dev-server --config webpack.dev.js --open",
     "docker": "docker build -t franz-manager .",
     "build": "NODE_ENV=production webpack --config webpack.prod.js",
     "generate-css-themes": "node plugins/generateCssThemes.js"
@@ -61,6 +61,6 @@
     "webpack-cli": "^3.3.2"
   },
   "devDependencies": {
-    "webpack-dev-server": "^3.5.1"
+    "webpack-dev-server": "^3.6.0"
   }
 }

@@ -12,34 +12,35 @@ import ThemesStore from '../../stores/ThemesStore';
 import Menu from '../menu/Menu';
 import Option from '../menu/option/Option';
 
-const sidenavItems = [
-  {
-    label: 'Dashboard',
-    link: '/dashboard',
-    icon: <DashboardIcon/>,
-  }, {
-    label: 'Cluster',
-    link: '/cluster',
-    icon: <ClusterIcon/>,
-  }, {
-    label: 'Topics',
-    link: '/topics',
-    icon: <TopicsIcon/>,
-  }, {
-    label: 'Consumers',
-    link: '/consumers',
-    icon: <ConsumerIcon/>,
-  },
-];
 
 class Sidenav extends Component {
+
+  static items = [
+    {
+      label: 'Dashboard',
+      link: '/dashboard',
+      icon: <DashboardIcon/>,
+    }, {
+      label: 'Cluster',
+      link: '/cluster',
+      icon: <ClusterIcon/>,
+    }, {
+      label: 'Topics',
+      link: '/topics',
+      icon: <TopicsIcon/>,
+    }, {
+      label: 'Consumers',
+      link: '/consumers',
+      icon: <ConsumerIcon/>,
+    },
+  ];
 
   constructor(props) {
     super(props);
     this.themeRef = React.createRef();
 
     this.state = {
-      selectedSidenavItem: '',
+      selectedSidenavItem: null,
       selectedTheme: ThemesStore.getTheme().file,
       currentRoute: this.props.location.pathname + this.props.location.search,
     };
@@ -54,20 +55,31 @@ class Sidenav extends Component {
   }
 
   _updateRoute(location) {
-    const baseUrl = document.querySelectorAll('base')[0].attributes['href'].value;
-    const splittedPath = location.pathname.replace(baseUrl, '')
-      .split('/');
-    const selectedSidenavItem = sidenavItems.find(m => m.link.split('/')[1] === splittedPath[1]);
+    const basePath = document.querySelector('base').attributes['href'].value;
+    let relativePath = location.pathname.replace(basePath, '');
+    if(!relativePath.startsWith('/')) relativePath = '/' + relativePath;
+    const selectedSidenavItem = Sidenav.items.find(i => relativePath.startsWith(i.link));
+
+    let subLocation = '';
+    if(selectedSidenavItem && relativePath.startsWith(selectedSidenavItem.link + '/')) {
+      subLocation = relativePath.replace(selectedSidenavItem.link + '/', '');
+    }
+
+    const currentRoute = location.pathname + location.search;
+    const previousRoute = currentRoute !== this.state.currentRoute ? this.state.currentRoute : this.state.previousRoute;
+    
     this.setState({
-      selectedSidenavItem: selectedSidenavItem ? selectedSidenavItem.label : sidenavItems[0].label,
-      subLocation: splittedPath[2] || '',
-      previousRoute: this.state.currentRoute,
-      currentRoute: location.pathname + location.search,
+      selectedSidenavItem,
+      relativePath,
+      subLocation: subLocation,
+      // needed condition in case of page refresh.
+      previousRoute,
+      currentRoute
     });
   }
 
   _selectSidenavItem(sidenavItem) {
-    this.setState({ selectedSidenavItem: sidenavItem.label });
+    this.setState({ selectedSidenavItem: sidenavItem });
   }
 
   _switchTheme(theme) {
@@ -80,13 +92,13 @@ class Sidenav extends Component {
       <div className="sidebar">
         <div className="sidenav-items">
           {
-            sidenavItems.map(sidenavItem => (
+            Sidenav.items.map(sidenavItem => (
               <Link
                 to={sidenavItem.link}
                 onClick={this._selectSidenavItem.bind(this, sidenavItem)}
                 key={sidenavItem.link}
                 className={classnames('sidenav-item', {
-                  selected: sidenavItem.label === this.state.selectedSidenavItem,
+                  selected: sidenavItem === this.state.selectedSidenavItem,
                 })}
               >
                 {sidenavItem.icon}

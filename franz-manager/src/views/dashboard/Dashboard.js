@@ -121,9 +121,6 @@ class Dashboard extends React.Component {
   }
 
   async componentDidMount() {
-    while (!this.konvaRef) {
-      await new Promise(resolve => setTimeout(resolve, 200));
-    }
     this.konvaRef.current.addEventListener('DOMMouseScroll', this._onMouseScroll.bind(this), false);
     this.konvaRef.current.addEventListener('mousewheel', this._onMouseScroll.bind(this), false);
     window.addEventListener('resize', this._handleResize.bind(this));
@@ -275,8 +272,9 @@ class Dashboard extends React.Component {
       new Promise((resolve) => {
         BrokersService.getBrokers(this.state.selectedCluster)
           .then((brokers) => {
+            const firstBroker = brokers[0];
             stats.brokers = brokers.length;
-            stats.zookeeper = brokers[0].configurations['zookeeper.connect'].split(',').length;
+            stats.zookeeper = firstBroker && firstBroker.configurations && firstBroker.configurations['zookeeper.connect'] ? firstBroker.configurations['zookeeper.connect'].split(',').length : 0;
             stats.status = 'OK';
             this.setState({ stats });
             resolve();
@@ -932,6 +930,7 @@ class Dashboard extends React.Component {
   }
 
   render() {
+    
     return (
       <div
         className="dashboard-view flex flex-1 relative"

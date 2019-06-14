@@ -42,7 +42,7 @@ class Clusters extends React.Component {
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this._loadTopicsMetrics();
     this._loadBrokers();
   }
@@ -244,7 +244,7 @@ class Clusters extends React.Component {
         {this.state.loadingBrokers && <Loader width="32"/>}
         {this.state.errorLoadingBrokers && !this.state.loadingBrokers && <Error noRiddle/>}
         {!this.state.loadingBrokers && !this.state.errorLoadingBrokers
-        && [
+         && [
           <header key="headerBroker"><h3>Brokers</h3></header>,
           <table key="tableBroker">
             <thead>
@@ -258,19 +258,15 @@ class Clusters extends React.Component {
             </thead>
             <tbody>
             {this.state.brokers.map(broker => (
-              <tr key={broker.id} className={broker.state !== 'OK' ? 'dead-broker' : ''}>
+              <tr key={broker.id} className={broker.state !== 'OK' ? 'dead-broker' : null}>
                 <td className="text-left">{broker.id}  {broker.leader && <CrownIcon width={16} height={16} className="leader-icon"/>}</td>
                 <td className="text-right">{broker.host}</td>
                 <td className="text-right">{broker.port}</td>
-                <td
-                  className="text-right"
-                >
-                  {typeof broker.BytesInPerSec !== 'undefined' ? broker.BytesInPerSec.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : '-'}
+                <td className="text-right">
+                  {broker.BytesInPerSec !== undefined ? broker.BytesInPerSec.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : '-'}
                 </td>
-                <td
-                  className="text-right"
-                >
-                  {typeof broker.BytesOutPerSec !== 'undefined' ? broker.BytesOutPerSec.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : '-'}
+                <td className="text-right">
+                  {broker.BytesOutPerSec !== undefined ? broker.BytesOutPerSec.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : '-'}
                 </td>
               </tr>
             ))}
@@ -292,7 +288,7 @@ class Clusters extends React.Component {
             <h3>Settings</h3>
             <Filter onChange={this._updateFilterComponent.bind(this)} className="margin-left-32px"/>
           </header>,
-          <PerfectScrollbar className="scrollbar settings-list">
+          <PerfectScrollbar key="scrollbar-settings" className="scrollbar settings-list">
             {
               Object.keys(this.state.brokersSettings)
                 .filter(settingsKey => Object.keys(this.state.brokersSettings[settingsKey])
@@ -352,11 +348,10 @@ class Clusters extends React.Component {
         {!this.state.loadingMetrics && !this.state.errorLoadingMetrics
         && [
           <header key="headerMetrics"><h3>Metrics</h3></header>,
-
           <PerfectScrollbar className="scrollbar" key="scrollbar-metrics">
             <table key="tableMetrics">
               <thead>
-              <tr>
+              <tr key="headerMetrics">
                 <th className="text-left">Name (per sec)</th>
                 <th className="text-right">Mean Rate</th>
                 <th className="text-right">Last minute</th>
@@ -365,44 +360,36 @@ class Clusters extends React.Component {
               </tr>
               </thead>
               <tbody>
-              {this.state.metrics.map((metric) => {
-                if (!metric.metrics) {
+                {this.state.metrics.map((metric) => {
+                  if (!metric.metrics) {
+                    return (
+                      <tr key="empty">
+                        <td/>
+                        <td/>
+                        <td/>
+                        <td/>
+                        <td/>
+                      </tr>
+                    );
+                  }
                   return (
-                    <tr>
-                      <td/>
-                      <td/>
-                      <td/>
-                      <td/>
-                      <td/>
+                    <tr key={metric.label}>
+                      <td className="text-left">{metric.label}</td>
+                      <td className="text-right">
+                        {metric.metrics.MeanRate.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}
+                      </td>
+                      <td className="text-right">
+                        {metric.metrics.OneMinuteRate.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}
+                      </td>
+                      <td className="text-right">
+                        {metric.metrics.FiveMinuteRate.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}
+                      </td>
+                      <td className="text-right">
+                        {metric.metrics.FifteenMinuteRate.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}
+                      </td>
                     </tr>
                   );
-                }
-                return (
-                  <tr key={metric.name}>
-                    <td className="text-left">{metric.label}</td>
-                    <td
-                      className="text-right"
-                    >
-                      {metric.metrics.MeanRate.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}
-                    </td>
-                    <td
-                      className="text-right"
-                    >
-                      {metric.metrics.OneMinuteRate.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}
-                    </td>
-                    <td
-                      className="text-right"
-                    >
-                      {metric.metrics.FiveMinuteRate.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}
-                    </td>
-                    <td
-                      className="text-right"
-                    >
-                      {metric.metrics.FifteenMinuteRate.toLocaleString('fr-FR', { maximumFractionDigits: 0 })}
-                    </td>
-                  </tr>
-                );
-              })}
+                })}
               </tbody>
             </table>
           </PerfectScrollbar>,

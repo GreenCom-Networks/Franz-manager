@@ -76,7 +76,7 @@ class Error extends React.Component {
           <div>
             <p>
               {`Something went wrong. Our best engineers are working to fix the issue. In the meantime, here's a
-              riddle for you :`}
+              riddle for you:`}
             </p>
             <p className="riddle">{this.state.riddle.question}</p>
             <div className="flex align-center margin-left-8px">

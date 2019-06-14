@@ -1,38 +1,22 @@
 import React, { Component } from 'react';
 import { Link, withRouter } from 'react-router-dom';
 import ClusterBar from '../clusterBar/ClusterBar';
+import Sidenav from '../sidenav/Sidenav';
 import { Logo } from '../../services/SvgService';
 import ClustersService from '../../services/ClustersService';
 
-const sidenavItems = [
-  {
-    label: 'Dashboard',
-    link: '/dashboard',
-  },
-  {
-    label: 'Cluster',
-    link: '/cluster',
-  },
-  {
-    label: 'Topics',
-    link: '/topics',
-  },
-  {
-    label: 'Consumers',
-    link: '/consumers',
-  },
-];
 
 class Topnav extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      selectedSidenavItem: '',
+      selectedSidenavItem: null,
+      relativePath: '',
       subLocation: '',
       previousRoute: '',
       currentRoute: this.props.location.pathname + this.props.location.search,
     };
-
+    
     this.props.history.listen(location => {
       this._updateRoute(location);
     });
@@ -43,20 +27,31 @@ class Topnav extends Component {
   }
 
   _updateRoute(location) {
-    const baseUrl = document.querySelectorAll('base')[0].attributes['href'].value;
-    const splittedPath = location.pathname.replace(baseUrl, '')
-      .split('/');
-    const selectedSidenavItem = sidenavItems.find(m => m.link.split('/')[1] === splittedPath[1]);
+    const basePath = document.querySelector('base').attributes['href'].value;
+    let relativePath = location.pathname.replace(basePath, '');
+    if(!relativePath.startsWith('/')) relativePath = '/' + relativePath;
+    const selectedSidenavItem = Sidenav.items.find(i => relativePath.startsWith(i.link));
+    
+    let subLocation = '';
+    if(selectedSidenavItem && relativePath.startsWith(selectedSidenavItem.link + '/')) {
+      subLocation = relativePath.replace(selectedSidenavItem.link + '/', '');
+    }
+    
+    const currentRoute = location.pathname + location.search;
+    const previousRoute = currentRoute !== this.state.currentRoute ? this.state.currentRoute : this.state.previousRoute;
+    
     this.setState({
-      selectedSidenavItem: selectedSidenavItem || sidenavItems[0],
-      subLocation: splittedPath[2] || '',
+      selectedSidenavItem,
+      relativePath,
+      subLocation: subLocation,
       // needed condition in case of page refresh.
-      previousRoute: this.state.currentRoute !== location.pathname + location.search ? this.state.currentRoute : this.state.previousRoute,
-      currentRoute: location.pathname + location.search,
+      previousRoute,
+      currentRoute
     });
   }
 
   render() {
+    const selectedSidenavItem = this.state.selectedSidenavItem || {};
     return (
       <header className="top-header flex">
         <Link to="">
@@ -68,22 +63,16 @@ class Topnav extends Component {
         <div className="breadcrumb flex-1">
           <div>
             <div className="flex margin-bottom-4px">
-              <Link
-                className="item"
-                to="/dashboard"
-              >
-                Cluster
-                {' '}
-                {ClustersService.getSelectedClusterId()}
+              <Link className="item" to="/dashboard">
+                { 'Cluster ' + ClustersService.getSelectedClusterId() }
               </Link>
-              {this.state.subLocation && <Link className="item"
-                                               to={this.state.previousRoute || this.state.selectedSidenavItem.link}>{this.state.selectedSidenavItem.label}</Link>}
+              { this.state.subLocation &&
+               (<Link className="item"
+                      to={this.state.previousRoute || selectedSidenavItem.link}>{selectedSidenavItem.label}</Link>) }
             </div>
-            <h1>{this.state.subLocation || this.state.selectedSidenavItem.label}</h1>
+            <h1>{this.state.subLocation || selectedSidenavItem.label}</h1>
           </div>
         </div>
-
-        {/* {this.state.selectedSidenavItem !== 'Dashboard' && <ClusterBar/>} */}
         <ClusterBar/>
       </header>
     );

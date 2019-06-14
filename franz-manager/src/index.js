@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Router from './Router';
+import App from './App';
 
 import '@mdi/font/css/materialdesignicons.css';
 import 'react-perfect-scrollbar/dist/css/styles.min.css';
@@ -26,6 +26,8 @@ import ThemesStore from './stores/ThemesStore';
   });
 }(Element.prototype));
 
+
 ThemesStore.initTheme();
 
-ReactDOM.render(<Router />, document.getElementById('root'));
+
+ReactDOM.render(<App />, document.getElementById('root'));

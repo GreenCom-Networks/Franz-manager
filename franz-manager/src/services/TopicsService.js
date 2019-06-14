@@ -1,8 +1,9 @@
 import ApiService from './ApiService';
+import ClustersService from './ClustersService';
 
 export default {
   getStoredData(dataString) {
-    const cluster = localStorage.getItem('selectedClusterId');
+    const cluster = ClustersService.getSelectedClusterId();
     if (cluster) {
       try {
         return JSON.parse(localStorage.getItem(`${cluster}-${dataString}`));

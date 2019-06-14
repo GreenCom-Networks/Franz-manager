@@ -14,21 +14,13 @@ class Loader extends React.Component {
 
   constructor(props) {
     super(props);
-
-    this.state = {};
-
-    if (typeof props.width !== 'undefined') {
-      this.state.width = props.width;
-    } else {
-      this.state.width = 64;
-    }
   }
 
   render() {
     return (
       <div className="grid-wrapper loader">
         <div className="grid">
-          <LoaderIcon width={this.state.width} />
+          <LoaderIcon width={this.props.width} />
         </div>
       </div>
     );

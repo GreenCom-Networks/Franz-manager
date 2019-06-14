@@ -9,37 +9,39 @@ class ClusterBar extends Component {
     this.clusterSelect = React.createRef();
 
     this.state = {
-      selected: null,
       clusters: [],
+      currentCluster: null,
     };
   }
 
-  componentWillMount() {
+  componentDidMount() {
     ClustersService.getClusters()
-      .then((clusters) => {
-        let selectedClusterId = ClustersService.getSelectedClusterId();
-        if (!selectedClusterId) {
-          ClustersService.setSelectedClusterId(clusters[0].name);
-          selectedClusterId = clusters[0].name;
-          this.setState({ clusters, selected: selectedClusterId });
-          window.location.reload(true);
-        } else {
-          this.setState({ clusters, selected: selectedClusterId });
-        }
+      .then(clusters => {
+        ClustersService.getSelectedCluster()
+          .then(currentCluster => {
+            this.setState({
+              clusters,
+              currentCluster
+            });
+          });
       });
   }
 
-  _changeCluster(cluster) {
-    this.setState({ selected: cluster });
-    ClustersService.setSelectedClusterId(cluster);
-    window.location.reload(true);
+  _changeCluster(clusterId) {
+    const cluster  = this.state.clusters.find(c => c.name === clusterId);
+    if(cluster) {
+      this.setState({ currentCluster: cluster });
+      ClustersService.setSelectedClusterId(cluster.name);
+    }
+    window.location.reload(true); // Full reload on cluster change
   }
 
   render() {
-    const clusters = this.state.clusters || [];
+    const clusters = this.state.clusters;
+    const currentCluster = this.state.currentCluster;
     return (
       <Menu
-        label={`Cluster ${this.state.selected}`}
+        label={currentCluster ? `Cluster ${currentCluster.name}` : ''}
         selected={this.state.selected}
         ref={this.clusterSelect}
         onChange={this._changeCluster.bind(this)}
@@ -50,13 +52,10 @@ class ClusterBar extends Component {
             value={cluster.name}
             ref={cluster.name}
             key={cluster.name}
-            selected={this.state.selected}
+            selected={currentCluster ? currentCluster.name === cluster.name : false}
             className="flex align-center space-between"
           >
-                        Cluster
-            {' '}
-            {cluster.name}
-            {' '}
+            Cluster {cluster.name}
             <i className="ellipse-8px ellipse green" />
           </Option>
         ))}
