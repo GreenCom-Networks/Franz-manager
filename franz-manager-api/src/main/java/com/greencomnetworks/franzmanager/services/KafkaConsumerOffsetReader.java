@@ -4,6 +4,7 @@ import com.greencomnetworks.franzmanager.entities.Cluster;
 import com.greencomnetworks.franzmanager.entities.ConsumerOffsetRecord;
 import com.greencomnetworks.franzmanager.utils.KafkaUtils;
 import org.apache.kafka.clients.CommonClientConfigs;
+import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -92,7 +93,7 @@ public class KafkaConsumerOffsetReader {
         public static BoundField OFFSET_VALUE_COMMIT_TIMESTAMP_FIELD_V3 = OFFSET_COMMIT_VALUE_SCHEMA_V3.get("commit_timestamp");
     }
 
-    private HashMap<String, Map<String, ConsumerOffsetRecord>> consumerOffsetRecordArray = new HashMap<>();
+    private Map<String, Map<String, ConsumerOffsetRecord>> consumerOffsetRecordArray = new HashMap<>();
 
     private static final AtomicReference<KafkaConsumerOffsetReader> _instance = new AtomicReference<>();
 
@@ -111,20 +112,30 @@ public class KafkaConsumerOffsetReader {
 
     private KafkaConsumerOffsetReader() {
         ClustersService.clusters.forEach(cluster -> {
-            startConsumer(cluster.name, cluster.brokersConnectString);
+            startConsumer(cluster, cluster.brokersConnectString);
         });
     }
 
-    private void startConsumer(String clusterId, String bootstrapServers) {
+    private void startConsumer(Cluster cluster, String bootstrapServers) {
         logger.info("Connecting to '{}': {}", bootstrapServers, CONSUMER_OFFSET_TOPIC);
 
         Map<String, Object> config = new HashMap<>();
         config.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
-        config.put(CommonClientConfigs.CLIENT_ID_CONFIG, CONSUMER_CLIENT_ID + "_" + clusterId);
+        config.put(CommonClientConfigs.CLIENT_ID_CONFIG, CONSUMER_CLIENT_ID + "_" + cluster.name);
         config.put(CommonClientConfigs.RECONNECT_BACKOFF_MAX_MS_CONFIG, reconnectTimeout.toMillis());
         config.put(ConsumerConfig.GROUP_ID_CONFIG, CONSUMER_GROUP_ID);
         config.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
         config.put(ConsumerConfig.EXCLUDE_INTERNAL_TOPICS_CONFIG, false);
+        if(cluster.sslConfiguration != null) {
+            config.put(AdminClientConfig.SECURITY_PROTOCOL_CONFIG, "SSL");
+            config.put("ssl.endpoint.identification.algorithm", "");
+            config.put("ssl.truststore.location", cluster.sslConfiguration.truststoreFile);
+            config.put("ssl.truststore.password", cluster.sslConfiguration.truststorePassword);
+            config.put("ssl.keystore.type", "PKCS12");
+            config.put("ssl.keystore.location", cluster.sslConfiguration.keystoreFile);
+            config.put("ssl.keystore.password", cluster.sslConfiguration.keystorePassword);
+        }
+
 
         Deserializer<ByteBuffer> deserializer = Serdes.ByteBuffer().deserializer();
 
@@ -136,7 +147,7 @@ public class KafkaConsumerOffsetReader {
                 while (running.get()) {
                     try {
                         Map<String, ConsumerOffsetRecord> consumerOffsetRecords = new HashMap<>();
-                        consumerOffsetRecordArray.put(clusterId, consumerOffsetRecords);
+                        consumerOffsetRecordArray.put(cluster.name, consumerOffsetRecords);
 
                         // TODO: add hook to update the topicPartitions when they are updated, it might be safer to use a subscribe here
                         // with auto commit disabled, and a unique groupId for each instance.
@@ -157,8 +168,6 @@ public class KafkaConsumerOffsetReader {
 
                                         if(keyVersion < 2) { // Group consumption offset
                                             ConsumerOffsetRecord consumerOffsetRecord = new ConsumerOffsetRecord();
-
-                                            consumerOffsetRecord.timestamp = ZonedDateTime.now();
 
                                             { // Read key
                                                 Struct struct = OFFSET_COMMIT_KEY_SCHEMA.read(keyByteBuffer);
@@ -242,7 +251,7 @@ public class KafkaConsumerOffsetReader {
             } finally {
                 consumer.close();
             }
-        }, "ConsumerOffsetReader-" + clusterId);
+        }, "ConsumerOffsetReader-" + cluster.name);
 
         thread.setDaemon(true);
         thread.start();

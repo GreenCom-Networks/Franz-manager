@@ -60,8 +60,11 @@ class App extends React.Component {
     } else {
       content = (
         <Switch>
-          <Route exact path="/" render={() => <Redirect to="/dashboard"/>}/>
-          <Route exact path="/dashboard" component={DashboardView}/>
+          {/*<Route exact path="/" render={() => <Redirect to="/dashboard"/>}/>
+             <Route exact path="/dashboard" component={DashboardView}/> */}
+          <Route exact path="/" render={() => <Redirect to="/topics"/>}/>
+          <Route exact path="/dashboard" render={() => <Redirect to="/topics"/>}/>
+          
           <Route exact path="/cluster" component={ClusterView}/>
           <Route exact path="/topics" component={TopicsView}/>
           <Route exact path="/topics/:topicId" component={TopicView}/>

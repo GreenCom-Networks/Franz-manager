@@ -18,9 +18,21 @@ public class AdminClientService {
         adminClients = new HashMap<>();
         for(Cluster cluster : ClustersService.clusters) {
             // TODO: set clientId
-            AdminClient adminClient = KafkaAdminClient.create(FUtils.Map.<String, Object>builder()
-                .put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, cluster.brokersConnectString)
-                .build());
+
+            Map<String, Object> config = new HashMap<>();
+            config.put(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, cluster.brokersConnectString);
+
+            if(cluster.sslConfiguration != null) {
+                config.put(AdminClientConfig.SECURITY_PROTOCOL_CONFIG, "SSL");
+                config.put("ssl.endpoint.identification.algorithm", "");
+                config.put("ssl.truststore.location", cluster.sslConfiguration.truststoreFile);
+                config.put("ssl.truststore.password", cluster.sslConfiguration.truststorePassword);
+                config.put("ssl.keystore.type", "PKCS12");
+                config.put("ssl.keystore.location", cluster.sslConfiguration.keystoreFile);
+                config.put("ssl.keystore.password", cluster.sslConfiguration.keystorePassword);
+            }
+
+            AdminClient adminClient = KafkaAdminClient.create(config);
             adminClients.put(cluster.name, adminClient);
         }
     }

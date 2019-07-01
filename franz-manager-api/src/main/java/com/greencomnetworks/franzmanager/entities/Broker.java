@@ -8,22 +8,21 @@ public class Broker {
     public String host;
     public int port;
     public int jmxPort;
+    public String rack;
+    public boolean leader;
     public Map<String, String> configurations;
     public State state;
 
     public Broker() {}
-    public Broker(String id, String host, int port, int jmxPort, Map<String, String> configurations, State state) {
+    public Broker(String id, String host, int port, int jmxPort, String rack, boolean leader, Map<String, String> configurations, State state) {
         this.id = id;
         this.host = host;
         this.port = port;
         this.jmxPort = jmxPort;
+        this.rack = rack;
+        this.leader = leader;
         this.configurations = configurations;
         this.state = state;
-    }
-
-    @Override
-    public String toString() {
-        return "Broker: " + id + ", host: " + host + ", port: " + port + ", jmxPort: " + jmxPort + ", configuration: " + (configurations == null ? "null" : configurations.toString()) + ", State: " + state;
     }
 
     @Override

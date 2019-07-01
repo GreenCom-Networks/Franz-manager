@@ -52,14 +52,15 @@ public class TopicMetricsService {
                         topics.forEach(topic -> {
                             Map<String, Metric> brokerTopicMetrics = new HashMap<>();
 
-                            for (String brokerHost : jmxConnectors.keySet()) { // for each brokers.
-                                try {
-                                    MBeanServerConnection mbsc = jmxConnectors.get(brokerHost).getMBeanServerConnection();
-                                    Broker currentBroker = FUtils.findInCollection(knownBrokers, n -> (n.host + ':' + n.jmxPort).equals(brokerHost));
+                            for(Broker broker : knownBrokers) {
+                                JMXConnector jmxConnector = jmxConnectors.get(broker.id);
+                                if(jmxConnector == null) continue;
 
+                                try {
+                                    MBeanServerConnection mbsc = jmxConnector.getMBeanServerConnection();
                                     String queryString = "kafka.server:type=BrokerTopicMetrics,name=MessagesInPerSec,topic=" + topic;
                                     String metricName = "MessagesInPerSec";
-                                    Metric metric = new Metric("BrokerTopicMetrics", metricName, Integer.parseInt(currentBroker.id), new HashMap<>());
+                                    Metric metric = new Metric("BrokerTopicMetrics", metricName, Integer.parseInt(broker.id), new HashMap<>());
                                     ObjectName objName = new ObjectName(queryString);
                                     MBeanInfo beanInfo = mbsc.getMBeanInfo(objName);
                                     for (MBeanAttributeInfo attr : beanInfo.getAttributes()) {
@@ -72,11 +73,9 @@ public class TopicMetricsService {
                                             metric.metrics.put(attr.getName(), value);
                                         }
                                     }
-                                    brokerTopicMetrics.put(currentBroker.id, metric);
-                                } catch (InstanceNotFoundException | MalformedObjectNameException | AttributeNotFoundException e) {
-                                    // we don't care
-                                } catch (IOException | ReflectionException | IntrospectionException | MBeanException e) {
-                                    e.printStackTrace();
+                                    brokerTopicMetrics.put(broker.id, metric);
+                                } catch(Exception e) {
+                                    /* noop */
                                 }
                             }
                             clusterTopicsMetrics.put(topic, brokerTopicMetrics);

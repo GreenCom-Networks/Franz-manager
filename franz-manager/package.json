@@ -22,7 +22,7 @@
   },
   "main": "src/index.js",
   "scripts": {
-    "start": "NODE_ENV=development webpack-dev-server --config webpack.dev.js --open",
+    "start": "NODE_ENV=development webpack-dev-server --config webpack.dev.js --open --hot",
     "docker": "docker build -t franz-manager .",
     "build": "NODE_ENV=production webpack --config webpack.prod.js",
     "generate-css-themes": "node plugins/generateCssThemes.js"

@@ -216,20 +216,23 @@ class Topic extends Component {
       },
     ];
     Promise.all(wantedMetrics.map(metric => MetricsService.getMetrics('kafka.server', 'BrokerTopicMetrics', metric.id, `topic=${this.state.topicId}`)))
-      .then((brokersMetrics) => {
+      .then(metricsByBrokers => {
+        const metricsByType = metricsByBrokers.map((metricsForBroker,i) => {
+          let metrics = metricsForBroker.reduce((prev, next) => {
+            if(!prev) return next;
+            ['Count', 'FifteenMinuteRate', 'FiveMinuteRate', 'MeanRate', 'OneMinuteRate'].forEach(metricName => {
+              prev[metricName] += next[metricName];
+            });
+            return prev;
+          }, null);
+          if(!metrics) metrics = {};
+          return {
+            label: wantedMetrics[i].label,
+            metrics: metrics
+          };
+        });        
         this.setState({
-          metrics: brokersMetrics.map(brokersMetric => brokersMetric.reduce((prev, next) => {
-            const result = prev;
-            result.label = wantedMetrics.find(w => w.id === next.name).label;
-            if (!prev.metrics) {
-              result.metrics = next.metrics;
-            } else {
-              ['Count', 'FifteenMinuteRate', 'FiveMinuteRate', 'MeanRate', 'OneMinuteRate'].forEach((metricName) => {
-                result.metrics[metricName] += next.metrics[metricName];
-              });
-            }
-            return result;
-          }, {})),
+          metrics: metricsByType,
           loadingMetrics: false,
         });
       })
@@ -395,17 +398,17 @@ class Topic extends Component {
             </tr>
             </thead>
             <tbody>
-            {this.state.metrics.map(metric => (
+              {this.state.metrics.map(metric => 
               <tr key={`metris-${metric.label}`}>
                 <td className="text-left">{metric.label}</td>
                 <td
-                  className="text-right">{metric.metrics.OneMinuteRate ? metric.metrics.OneMinuteRate.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : ''}</td>
+                  className="text-right">{metric.metrics.OneMinuteRate ? metric.metrics.OneMinuteRate.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : '-'}</td>
                 <td
-                  className="text-right">{metric.metrics.FiveMinuteRate ? metric.metrics.FiveMinuteRate.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : ''}</td>
+                  className="text-right">{metric.metrics.FiveMinuteRate ? metric.metrics.FiveMinuteRate.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : '-'}</td>
                 <td
-                  className="text-right">{metric.metrics.FifteenMinuteRate ? metric.metrics.FifteenMinuteRate.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : ''}</td>
+                  className="text-right">{metric.metrics.FifteenMinuteRate ? metric.metrics.FifteenMinuteRate.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : '-'}</td>
               </tr>
-            ))}
+          )}
             </tbody>
           </table>
         )}

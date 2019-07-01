@@ -14,6 +14,7 @@ import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.jackson.internal.jackson.jaxrs.json.JacksonJaxbJsonProvider;
 import org.glassfish.jersey.logging.LoggingFeature;
 import org.glassfish.jersey.server.ResourceConfig;
+import org.glassfish.jersey.server.ServerProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,6 +45,7 @@ public class FranzManagerApi {
         URI baseUri = UriBuilder.fromUri("http://0.0.0.0/").path(apiConfig.basePath).port(apiConfig.apiPort).build();
         ResourceConfig config = new ResourceConfig();
 
+        config.property(ServerProperties.WADL_FEATURE_DISABLE, true);
         config.register(LoggingFeature.class);
         config.register(JacksonJaxbJsonProvider.class, MessageBodyReader.class, MessageBodyWriter.class);
 
@@ -113,7 +115,6 @@ public class FranzManagerApi {
 
             ClustersService.init();
             AdminClientService.init();
-            ZookeeperService.init();
             BrokersService.init();
             KafkaConsumerOffsetReader.init();
             KafkaMetricsService.init();

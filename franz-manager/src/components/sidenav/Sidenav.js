@@ -16,7 +16,7 @@ import Option from '../menu/option/Option';
 class Sidenav extends Component {
 
   static items = [
-    {
+/*    {
       label: 'Dashboard',
       link: '/dashboard',
       icon: <DashboardIcon/>,
@@ -24,7 +24,7 @@ class Sidenav extends Component {
       label: 'Cluster',
       link: '/cluster',
       icon: <ClusterIcon/>,
-    }, {
+    },*/ {
       label: 'Topics',
       link: '/topics',
       icon: <TopicsIcon/>,

@@ -6,6 +6,7 @@ import com.greencomnetworks.franzmanager.services.AdminClientService;
 import com.greencomnetworks.franzmanager.services.ClustersService;
 import com.greencomnetworks.franzmanager.utils.FUtils;
 import com.greencomnetworks.franzmanager.utils.KafkaUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.CommonClientConfigs;
 import org.apache.kafka.clients.admin.*;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -22,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
@@ -81,6 +83,16 @@ public class TopicsResource {
         try {
             Properties config = new Properties();
             config.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, cluster.brokersConnectString);
+            if(cluster.sslConfiguration != null) {
+                config.put(AdminClientConfig.SECURITY_PROTOCOL_CONFIG, "SSL");
+                config.put("ssl.endpoint.identification.algorithm", "");
+                config.put("ssl.truststore.location", cluster.sslConfiguration.truststoreFile);
+                config.put("ssl.truststore.password", cluster.sslConfiguration.truststorePassword);
+                config.put("ssl.keystore.type", "PKCS12");
+                config.put("ssl.keystore.location", cluster.sslConfiguration.keystoreFile);
+                config.put("ssl.keystore.password", cluster.sslConfiguration.keystorePassword);
+            }
+
             Deserializer<byte[]> deserializer = Serdes.ByteArray().deserializer();
             consumer = new KafkaConsumer<>(config, deserializer, deserializer);
 
@@ -112,6 +124,9 @@ public class TopicsResource {
                 }).collect(Collectors.toList());
 
             return completeTopics;
+        } catch(RuntimeException e) {
+            logger.error("Critical error: {}", e, e);
+            throw e;
         } finally {
             if (consumer != null) {
                 consumer.close();
@@ -184,6 +199,7 @@ public class TopicsResource {
             ConfigResource configResource = new ConfigResource(ConfigResource.Type.TOPIC, topicId);
             List<ConfigEntry> configEntries = configurations.entrySet().stream().map(entry -> new ConfigEntry(entry.getKey(), entry.getValue())).collect(Collectors.toList());
             Map<ConfigResource, Config> configs = FUtils.Map.of(configResource, new Config(configEntries));
+            //noinspection deprecation
             adminClient.alterConfigs(configs).all().get();
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
@@ -266,6 +282,15 @@ public class TopicsResource {
     private List<Partition> retrievePartitions(String topicId) {
         Properties config = new Properties();
         config.put(CommonClientConfigs.BOOTSTRAP_SERVERS_CONFIG, cluster.brokersConnectString);
+        if(cluster.sslConfiguration != null) {
+            config.put(AdminClientConfig.SECURITY_PROTOCOL_CONFIG, "SSL");
+            config.put("ssl.endpoint.identification.algorithm", "");
+            config.put("ssl.truststore.location", cluster.sslConfiguration.truststoreFile);
+            config.put("ssl.truststore.password", cluster.sslConfiguration.truststorePassword);
+            config.put("ssl.keystore.type", "PKCS12");
+            config.put("ssl.keystore.location", cluster.sslConfiguration.keystoreFile);
+            config.put("ssl.keystore.password", cluster.sslConfiguration.keystorePassword);
+        }
         Deserializer<byte[]> deserializer = Serdes.ByteArray().deserializer();
         KafkaConsumer<byte[], byte[]> consumer = new KafkaConsumer<>(config, deserializer, deserializer);
         try {

@@ -15,20 +15,20 @@
         <main.class>com.greencomnetworks.franzmanager.FranzManagerApi</main.class>
 
 
-        <commons.lang3.version>3.8.1</commons.lang3.version>
+        <commons.lang3.version>3.9</commons.lang3.version>
         <commons.collections4.version>4.3</commons.collections4.version>
         <commons.text.version>1.6</commons.text.version>
-        <commons.configuration2.version>2.4</commons.configuration2.version>
+        <commons.configuration2.version>2.5</commons.configuration2.version>
         <commons.beanutils.version>1.9.3</commons.beanutils.version>
 
-        <log4j.version>2.11.2</log4j.version>
-        <slf4j.version>1.7.25</slf4j.version>
+        <log4j.version>2.12.0</log4j.version>
+        <slf4j.version>1.7.26</slf4j.version>
 
-        <jersey.version>2.28</jersey.version>
+        <jersey.version>2.29</jersey.version>
         <grizzly.version>2.4.4</grizzly.version>
-        <jackson.version>2.9.8</jackson.version>
-        <kafka.version>2.1.1</kafka.version>
-        <zookeeper.version>3.4.13</zookeeper.version>
+        <jackson.version>2.9.9</jackson.version>
+        <kafka.version>2.2.1</kafka.version>
+        <jaxb.runtime.version>2.4.0-b180830.0438</jaxb.runtime.version>
     </properties>
 
 
@@ -103,6 +103,11 @@
             <artifactId>jersey-media-json-jackson</artifactId>
             <version>${jersey.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish.jaxb</groupId>
+            <artifactId>jaxb-runtime</artifactId>
+            <version>${jaxb.runtime.version}</version>
+        </dependency>
 
         <!-- Websockets -->
         <dependency>
@@ -143,23 +148,6 @@
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
             <version>${kafka.version}</version>
-        </dependency>
-
-        <!-- Zookeeper -->
-        <dependency>
-            <groupId>org.apache.zookeeper</groupId>
-            <artifactId>zookeeper</artifactId>
-            <version>${zookeeper.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.slf4j</groupId>
-                    <artifactId>slf4j-log4j12</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>log4j</groupId>
-                    <artifactId>log4j</artifactId>
-                </exclusion>
-            </exclusions>
         </dependency>
     </dependencies>
 

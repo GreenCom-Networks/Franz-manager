@@ -1,5 +1,6 @@
 package com.greencomnetworks.franzmanager.services;
 
+import com.greencomnetworks.franzmanager.entities.Broker;
 import com.greencomnetworks.franzmanager.entities.Cluster;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,49 +27,54 @@ public class KafkaMetricsService {
         return jmxConnectors.get(cluster.name);
     }
 
-    public static HashMap<String, HashMap<String, JMXConnector>> getJmxConnectors() {
-        return jmxConnectors;
-    }
-
     private static class JmxConnectivityCheck implements Runnable {
         public void run() {
             while (true) {
                 try {
-                    ClustersService.clusters.forEach(cluster -> {
+                    for(Cluster cluster : ClustersService.clusters) {
                         jmxConnectors.computeIfAbsent(cluster.name, k -> new HashMap<>());
-                        for (String url : cluster.jmxConnectString.split(",")) {
-                            HashMap<String, JMXConnector> mbscs = jmxConnectors.get(cluster.name);
-                            try {
-                                mbscs.get(url).getMBeanServerConnection();
-                            } catch (IOException | NullPointerException e) {
-                                connectJmx(cluster, url);
+                        if(cluster.jmxPort <= 0) continue;
+                        for(Broker broker : BrokersService.getKnownKafkaBrokers(cluster)) {
+                            HashMap<String, JMXConnector> jmxConnectors = new HashMap<>(KafkaMetricsService.jmxConnectors.get(cluster.name));
+                            JMXConnector jmxConnector = jmxConnectors.get(broker.id);
+                            if(jmxConnector != null) {
+                                // Query to keep the connection open?
+                                try {
+                                    jmxConnector.getMBeanServerConnection();
+                                } catch(IOException e) {
+                                    try {
+                                        jmxConnector.close();
+                                    } catch(IOException e1) {}
+                                    jmxConnector = null;
+                                }
                             }
+                            if(jmxConnector == null) {
+                                jmxConnector = connectJmx(cluster, broker);
+                                jmxConnectors.put(cluster.name, jmxConnector);
+                            }
+
+                            KafkaMetricsService.jmxConnectors.put(cluster.name, jmxConnectors);
                         }
-                    });
-                    Thread.sleep(5000);
+                    }
+                    Thread.sleep(15000);
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }
         }
 
-        private static void connectJmx(Cluster cluster, String url) {
+        private static JMXConnector connectJmx(Cluster cluster, Broker broker) {
+            String url = broker.host + ':' + broker.jmxPort;
             try {
-                logger.info("Connecting to jmx -- url: " + url.split(":")[0] + " -- cluster: " + cluster.name);
                 JMXServiceURL jmxUrl = new JMXServiceURL("service:jmx:rmi:///jndi/rmi://" + url + "/jmxrmi");
                 JMXConnector jmxc = JMXConnectorFactory.connect(jmxUrl, null);
-                jmxConnectors.get(cluster.name).put(url, jmxc);
-                logger.info("__ connected " + url + " -- " + cluster.name);
+                return jmxc;
             } catch (MalformedURLException e) {
                 throw new RuntimeException("The following url has a bad format : " + url, e);
             } catch (IOException e) {
                 logger.error("Cannot connect to the following url '{}': {}", url, e.getMessage());
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e1) {
-                    // don't care.
-                }
             }
+            return null;
         }
     }
 }

@@ -7,6 +7,7 @@ import com.greencomnetworks.franzmanager.services.ClustersService;
 import com.greencomnetworks.franzmanager.utils.FUtils;
 import com.greencomnetworks.franzmanager.utils.KafkaUtils;
 import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.admin.TopicDescription;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
@@ -50,6 +51,15 @@ public class MessagesResource {
         props.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, cluster.brokersConnectString);
         props.put(ConsumerConfig.GROUP_ID_CONFIG, "franz-manager-api");
         props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+        if(cluster.sslConfiguration != null) {
+            props.put(AdminClientConfig.SECURITY_PROTOCOL_CONFIG, "SSL");
+            props.put("ssl.endpoint.identification.algorithm", "");
+            props.put("ssl.truststore.location", cluster.sslConfiguration.truststoreFile);
+            props.put("ssl.truststore.password", cluster.sslConfiguration.truststorePassword);
+            props.put("ssl.keystore.type", "PKCS12");
+            props.put("ssl.keystore.location", cluster.sslConfiguration.keystoreFile);
+            props.put("ssl.keystore.password", cluster.sslConfiguration.keystorePassword);
+        }
 
         Deserializer<String> deserializer = Serdes.String().deserializer();
         final Consumer<String, String> consumer = new KafkaConsumer<>(props, deserializer, deserializer);

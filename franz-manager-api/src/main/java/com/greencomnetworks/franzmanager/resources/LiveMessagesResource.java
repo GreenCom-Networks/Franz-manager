@@ -10,6 +10,7 @@ import com.greencomnetworks.franzmanager.utils.CustomObjectMapper;
 import com.greencomnetworks.franzmanager.utils.KafkaUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -166,6 +167,17 @@ public class LiveMessagesResource extends WebSocketApplication {
             props.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
             props.put(ConsumerConfig.CLIENT_ID_CONFIG, this.clientId);
             props.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+
+            if(cluster.sslConfiguration != null) {
+                props.put(AdminClientConfig.SECURITY_PROTOCOL_CONFIG, "SSL");
+                props.put("ssl.endpoint.identification.algorithm", "");
+                props.put("ssl.truststore.location", cluster.sslConfiguration.truststoreFile);
+                props.put("ssl.truststore.password", cluster.sslConfiguration.truststorePassword);
+                props.put("ssl.keystore.type", "PKCS12");
+                props.put("ssl.keystore.location", cluster.sslConfiguration.keystoreFile);
+                props.put("ssl.keystore.password", cluster.sslConfiguration.keystorePassword);
+            }
+
             Deserializer<String> deserializer = Serdes.String().deserializer();
             this.consumer = new KafkaConsumer<>(props, deserializer, deserializer);
 

@@ -71,7 +71,7 @@ class Dashboard extends React.Component {
     this.firstDraw = true;
   }
 
-  componentWillMount() {
+  componentDidMount() {
     this.themeStore = ThemesStore.watch((data) => {
       if (data.action === 'UPDATE') {
         this.setState({
@@ -241,12 +241,16 @@ class Dashboard extends React.Component {
   }
 
   _clearEverythingAndRedraw() {
-    this.mainLayer.destroy();
-    this.mainLayer = null;
-    this.stage.destroy();
-    this.stage = null;
+    if(this.mainLayer) {
+      this.mainLayer.destroy();
+      this.mainLayer = null;
+    }
+    if(this.stage) {
+      this.stage.destroy();
+      this.stage = null;
+    }
     this.firstDraw = true;
-    this.keepMatrix = true;
+    if(this.matrix) this.keepMatrix = true;
     this._initCanvas();
   }
 

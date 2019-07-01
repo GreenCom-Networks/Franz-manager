@@ -1,31 +1,31 @@
 package com.greencomnetworks.franzmanager.services;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.greencomnetworks.franzmanager.entities.Broker;
 import com.greencomnetworks.franzmanager.entities.Cluster;
-import com.greencomnetworks.franzmanager.utils.CustomObjectMapper;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.zookeeper.KeeperException;
-import org.apache.zookeeper.ZooKeeper;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.Config;
+import org.apache.kafka.clients.admin.ConfigEntry;
+import org.apache.kafka.common.Node;
+import org.apache.kafka.common.config.ConfigResource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.time.Duration;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 public class BrokersService {
     private static final Logger logger = LoggerFactory.getLogger(BrokersService.class);
     private static Map<String, List<Broker>> brokersByCluster = new HashMap<>();
 
-    private static final Duration discoveryPeriod = Duration.ofSeconds(30);
+    private static final Duration discoveryPeriod = Duration.ofMinutes(5);
 
     public static void init() {
         for(Cluster cluster : ClustersService.clusters) {
+            List<Broker> brokers = scanBrokers(cluster);
+            brokersByCluster.put(cluster.name, brokers);
+
             KafkaBrokersDiscovery discovery = new KafkaBrokersDiscovery(cluster);
             discovery.start();
         }
@@ -33,6 +33,54 @@ public class BrokersService {
 
     public static List<Broker> getKnownKafkaBrokers(Cluster cluster) {
         return brokersByCluster.getOrDefault(cluster.name, new ArrayList<>(0));
+    }
+
+
+    private static List<Broker> scanBrokers(Cluster cluster) {
+        AdminClient adminClient = AdminClientService.getAdminClient(cluster);
+
+
+        List<Broker> brokers = new ArrayList<>();
+        try {
+            Collection<Node> nodes = adminClient.describeCluster().nodes().get();
+            Node controller = adminClient.describeCluster().controller().get();
+
+            Map<String, Config> configs = adminClient.describeConfigs(nodes.stream().map(n -> new ConfigResource(ConfigResource.Type.BROKER, n.idString())).collect(Collectors.toList()))
+                .all().get().entrySet().stream()
+                .collect(Collectors.toMap(
+                    e -> e.getKey().name(),
+                    e -> e.getValue()
+                ));
+
+
+            for(Node node : nodes) {
+                Broker broker = new Broker();
+                broker.id = node.idString();
+                broker.host = node.host();
+                broker.port = node.port();
+                broker.jmxPort = cluster.jmxPort;
+                broker.rack = node.rack();
+                broker.leader = controller.id() == node.id();
+                broker.configurations = configs.get(node.idString()).entries().stream()
+                    .map(configEntry -> {
+                        if(configEntry.value() == null) {
+                            return new ConfigEntry(configEntry.name(), "null");
+                        }
+                        return configEntry;
+                    })
+                    .collect(Collectors.toMap(
+                        e -> e.name(),
+                        e -> e.value()
+                    ));
+                broker.state = Broker.State.OK;
+
+                brokers.add(broker);
+            }
+        } catch(Exception e) {
+            throw new RuntimeException(String.format("Unable to scan brokers for cluster %s: %s", cluster.name, e.getMessage()), e);
+        }
+
+        return brokers;
     }
 
     private static class KafkaBrokersDiscovery implements Runnable {
@@ -63,8 +111,7 @@ public class BrokersService {
                 while(running.get()) {
                     try {
                         while(running.get()) {
-                            List<Broker> previouslyKnownBrokers = getKnownKafkaBrokers(cluster);
-                            List<Broker> brokers = scanBrokers(previouslyKnownBrokers);
+                            List<Broker> brokers = scanBrokers(cluster);
                             brokersByCluster.put(cluster.name, brokers);
 
                             Thread.sleep(discoveryPeriod.toMillis());
@@ -77,112 +124,5 @@ public class BrokersService {
                 logger.error("Critical error in Kafka Brokers Discovery: {}", e, e);
             }
         }
-
-        private List<Broker> scanBrokers(List<Broker> previouslyKnownBrokers) {
-            List<Broker> brokers = new ArrayList<>(previouslyKnownBrokers.size());
-
-            try {
-                ZooKeeper zooKeeper = ZookeeperService.getZookeeperConnection(cluster);
-                if (zooKeeper == null) throw new IllegalStateException("Unable to obtain zookeeper connection for cluster \"" + cluster.name + "\"");
-
-                List<String> brokerIds = zooKeeper.getChildren("/brokers/ids", false);
-                for(String brokerId : brokerIds) {
-                    byte[] zkData = zooKeeper.getData("/brokers/ids/" + brokerId, false, null);
-                    ZkKafkaBroker zkKafkaBroker = new CustomObjectMapper().readValue(zkData, ZkKafkaBroker.class); // SPEED: reuse objectMapper?
-                    String host;
-                    {
-                        String[] split = zkKafkaBroker.host.split(":");
-                        if(split.length == 2) host = split[0];
-                        else host = zkKafkaBroker.host;
-                    }
-                    brokers.add(new Broker(
-                        brokerId,
-                        host,
-                        zkKafkaBroker.port,
-                        zkKafkaBroker.jmxPort,
-                        null,
-                        Broker.State.OK));
-                }
-            } catch (KeeperException|IOException e) {
-                logger.error("Error while scanning brokers of cluster {}: {}", cluster.name, e, e);
-            } catch(InterruptedException e) {
-                /* noop */
-            }
-
-            // Add previously known brokers that we missed
-            for(Broker previouslyKnownBroker : previouslyKnownBrokers) {
-                Broker broker = null;
-                for(Broker b : brokers) {
-                    if(b.equals(previouslyKnownBroker)) {
-                        broker = b;
-                        break;
-                    }
-                }
-                if(broker == null) {
-                    if(previouslyKnownBroker.state != Broker.State.BROKEN) {
-                        logger.warn("Broker {}:{} lost.", previouslyKnownBroker.host, previouslyKnownBroker.port);
-                    }
-                    brokers.add(new Broker(
-                        previouslyKnownBroker.id,
-                        previouslyKnownBroker.host,
-                        previouslyKnownBroker.port,
-                        previouslyKnownBroker.jmxPort,
-                        previouslyKnownBroker.configurations,
-                        Broker.State.BROKEN
-                    ));
-                }
-            }
-
-            // Add brokers provided by the configuration that we missed
-            {
-                String[] connectStrings = cluster.brokersConnectString.split(",");
-                for(int i = 0; i < connectStrings.length; ++i) {
-                    String host = connectStrings[i];
-                    int port = 9092;
-                    {
-                        String[] split = host.split(":");
-                        if(split.length == 2) {
-                            host = split[0];
-                            port = Integer.parseInt(split[1]);
-                        }
-                    }
-                    Broker broker = null;
-                    for(Broker b : brokers) {
-                        if(StringUtils.equals(b.host, host) && b.port == port) {
-                            broker = b;
-                            break;
-                        }
-                    }
-                    if(broker == null) {
-                        int jmxPort = 9999;
-                        {
-                            String jmxConnectString = cluster.jmxConnectString.split(",")[i];
-                            String[] split = jmxConnectString.split(":");
-                            if(split.length == 2) {
-                                jmxPort = Integer.parseInt(split[1]);
-                            }
-                        }
-
-                        brokers.add(new Broker(
-                            "?",
-                            host,
-                            port,
-                            jmxPort,
-                            null,
-                            Broker.State.BROKEN
-                            ));
-                    }
-                }
-            }
-            return brokers;
-        }
-    }
-
-    private static class ZkKafkaBroker {
-        public String host;
-        public long timestamp;
-        public Integer port;
-        @JsonProperty("jmx_port")
-        public Integer jmxPort;
     }
 }

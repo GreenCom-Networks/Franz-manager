@@ -6,7 +6,7 @@ WORKDIR /app
 
 RUN mvn clean package
 
-FROM openjdk:8-jdk-slim
+FROM openjdk:11-jdk-slim
 
 ENV APP franz-manager-api
 
@@ -16,7 +16,8 @@ COPY apidoc apidoc
 
 COPY --from=builder /app/target/$APP-jar-with-dependencies.jar $APP.jar
 
-CMD java \
+CMD exec java \
     -Xmx${JVM_HEAP_SIZE:-1024}m \
     -XX:+ExitOnOutOfMemoryError \
+    -server \
     -jar $APP.jar
