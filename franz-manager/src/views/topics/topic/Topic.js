@@ -23,6 +23,7 @@ import Tooltip from '../../../components/tooltip/Tooltip';
 import ConstantsService from '../../../services/ConstantsService';
 import ClustersService from '../../../services/ClustersService';
 import Filter from '../../../components/filter/Filter';
+import Switch from "../../../components/switch/Switch";
 
 let copyJSON;
 let renderFormatDateMessage;
@@ -84,7 +85,8 @@ class Topic extends Component {
       messageTypeSelected: '10 last messages',
       filter: '',
       filterByKey: false,
-      filterByRegexp: false
+      filterByRegexp: false,
+      wrapMessages: false
     };
   }
 
@@ -340,6 +342,12 @@ class Topic extends Component {
     this.setState(state);
   }
 
+  _wrapMessages = (checked) => {
+    this.setState({
+      wrapMessages: checked
+    })
+  };
+
   _renderContextActions() {
     return (
       <div className="context-actions topic-context-actions">
@@ -567,6 +575,9 @@ class Topic extends Component {
                                                                                       height={24}/>
               </button>
             </Tooltip>
+            <div className="margin-left-16px">
+              <Switch label="Wrap Messages" onChange={this._wrapMessages} />
+            </div>
           </header>
         </section>
         <PerfectScrollbar className="messages-list" onYReachEnd={this._onMessagesScroll.bind(this)}>
@@ -600,6 +611,7 @@ class Topic extends Component {
                       </div>
                     </Tooltip>
                   </header>
+                  <div className={classnames({"wrapped-message": this.state.wrapMessages})} >
                   {(() => {
                     if (this.state.showMessagesHeaders) {
                       if(Object.keys(message.headers).length > 0) {
@@ -624,6 +636,7 @@ class Topic extends Component {
                       }
                     }
                   })()}
+                  </div>
                 </section>
               );
             })
@@ -669,6 +682,8 @@ class Topic extends Component {
       </div>
     );
   }
+
+
 
   render() {
     return (
