@@ -201,12 +201,15 @@
           text-overflow: ellipsis;
         }
 
+        .wrapped-message .__json-pretty__ {
+          white-space: normal;
+        }
+
         .__json-pretty__ {
           font: map_get($fonts, code);
           line-height: 21px;
           padding: 0 24px 16px 16px;
           color: map_get($text-colors, code-punctuation);
-          white-space: normal;
           word-break: break-all;
 
           .__json-key__ {
