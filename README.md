@@ -51,6 +51,24 @@ The frontend should be available on http://localhost/
 The api should be available on http://localhost:8080/
 The websocket server should be available on ws://localhost:8080/
 
+#### Example `KAFKA_CONF`
+```json
+[
+     {
+         "name": "cluster 1",
+         "brokersConnectString": "127.0.0.2:9092,127.0.0.3:9092,127.0.0.4:9092",
+         "jmxConnectString": "127.0.0.2:9997,127.0.0.3:9997,127.0.0.4:9997",
+         "zookeeperConnectString": "127.0.0.2:2181,127.0.0.3:2181,127.0.0.4:2181"
+     },
+     {
+         "name": "cluster 2",
+         "brokersConnectString": "127.0.0.5:9092,127.0.0.6:9092,127.0.0.7:9092",
+         "jmxConnectString": "127.0.0.5:9997,127.0.0.6:9997,127.0.0.7:9997",
+         "zookeeperConnectString": "127.0.0.2:2181,127.0.0.3:2181,127.0.0.4:2181"
+     }
+]
+```
+
 ---
 
 ### Links to more specific documentation
