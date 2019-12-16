@@ -28,7 +28,7 @@
         <grizzly.version>2.4.4</grizzly.version>
         <jackson.version>2.9.8</jackson.version>
         <kafka.version>2.1.1</kafka.version>
-        <zookeeper.version>3.4.13</zookeeper.version>
+        <zookeeper.version>3.4.14</zookeeper.version>
     </properties>
 
 
