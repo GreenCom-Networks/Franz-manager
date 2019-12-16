@@ -15,24 +15,29 @@ Discover more at [franz-manager.io](https://www.franz-manager.io/) !
 - Detailed consumer information (partitions, topic offset, consumer offset, lag, commit timestamp).
 - Multiple themes.
  
+ ---
+
 ### Screenshots
 ###### Dashboard view
-![dashboard view](https://github.com/GreenCom-Networks/franz-manager/blob/master/documentation/images/dashboard_view.jpg?raw=true)
+![dashboard view](documentation/images/dashboard_view.jpg)
 ###### Cluster view (theme cashmachine)
-![cluster view](https://github.com/GreenCom-Networks/franz-manager/blob/master/documentation/images/cluster_view.jpg?raw=true)
+![cluster view](documentation/images/cluster_view.jpg)
 ###### Cluster view (theme terminal)
-![cluster view](https://github.com/GreenCom-Networks/franz-manager/blob/master/documentation/images/cluster_view_terminal.jpg?raw=true)
+![cluster view](documentation/images/cluster_view_terminal.jpg)
 ###### Cluster view (theme ratatouille)
-![cluster view](https://github.com/GreenCom-Networks/franz-manager/blob/master/documentation/images/cluster_view_ratatouille.jpg?raw=true)
+![cluster view](documentation/images/cluster_view_ratatouille.jpg)
 ###### Topics view
-![topics view](https://github.com/GreenCom-Networks/franz-manager/blob/master/documentation/images/topics_view.jpg?raw=true)
+![topics view](documentation/images/topics_view.jpg)
 ###### Topic view
-![topic view](https://github.com/GreenCom-Networks/franz-manager/blob/master/documentation/images/topic_view.jpg?raw=true)
+![topic view](documentation/images/topic_view.jpg)
 ###### Consumer view
-![consumer view](https://github.com/GreenCom-Networks/franz-manager/blob/master/documentation/images/consumer_view.jpg?raw=true)
+![consumer view](documentation/images/consumer_view.jpg)
+
+---
 
 ### Deployment
 #### Docker
+Note that further documentation is available respectively in `franz-manager` and `franz-manager-api` subfolders.
 ##### From docker hub with docker-compose
 Run: `KAFKA_CONF='[YOUR_KAFKA_CONFIGURATION]' SERVER_URL='http://0.0.0.0:8080/' WEBSOCKET_SERVER_URL='ws://0.0.0.0:8081/' cd deploy && docker-compose up`
 The frontend should be available on http://localhost/
@@ -45,3 +50,9 @@ Run the frontend: `docker pull greencomnetworks/franz-manager && docker run -e S
 The frontend should be available on http://localhost/
 The api should be available on http://localhost:8080/
 The websocket server should be available on ws://localhost:8080/
+
+---
+
+### Links to more specific documentation
+* Frontend: [franz-manager](franz-manager/README.md)
+* Backend: [franz-manager-api](franz-manager-api/README.md)

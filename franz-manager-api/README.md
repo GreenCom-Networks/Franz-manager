@@ -1,7 +1,4 @@
 # Franz-manager-api
-A multi-cluster Kafka Administration Tool (back-end).
-This application is a smooth alternative to kafka-manager.  
-Discover more at [franz-manager.io](https://www.franz-manager.io/) !
 
 ### Environment variables
 #### Mandatory environment variables
