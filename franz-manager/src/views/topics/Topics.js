@@ -350,7 +350,8 @@ class Topics extends React.Component {
   }
 
   async _deleteTopics(topics) {
-    if (!this.inputTopicsNumber || Number(this.inputTopicsNumber.value) !== topics.length) {
+    if (!this.inputTopicsNumber || Number(this.inputTopicsNumber.current.value) !== topics.length) {
+      console.error('Cannot match input value and topics length');
       return;
     }
     this.setState({ badInput: null });
