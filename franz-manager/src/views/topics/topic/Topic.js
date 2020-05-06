@@ -407,11 +407,11 @@ class Topic extends Component {
               <tr key={`metris-${metric.label}`}>
                 <td className="text-left">{metric.label}</td>
                 <td
-                  className="text-right">{metric.metrics.OneMinuteRate ? metric.metrics.OneMinuteRate.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : ''}</td>
+                  className="text-right">{metric.metrics && metric.metrics.OneMinuteRate ? metric.metrics.OneMinuteRate.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : ''}</td>
                 <td
-                  className="text-right">{metric.metrics.FiveMinuteRate ? metric.metrics.FiveMinuteRate.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : ''}</td>
+                  className="text-right">{metric.metrics && metric.metrics.FiveMinuteRate ? metric.metrics.FiveMinuteRate.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : ''}</td>
                 <td
-                  className="text-right">{metric.metrics.FifteenMinuteRate ? metric.metrics.FifteenMinuteRate.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : ''}</td>
+                  className="text-right">{metric.metrics && metric.metrics.FifteenMinuteRate ? metric.metrics.FifteenMinuteRate.toLocaleString('fr-FR', { maximumFractionDigits: 0 }) : ''}</td>
               </tr>
             ))}
             </tbody>
