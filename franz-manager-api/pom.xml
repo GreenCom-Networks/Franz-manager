@@ -18,7 +18,7 @@
         <commons.lang3.version>3.8.1</commons.lang3.version>
         <commons.collections4.version>4.3</commons.collections4.version>
         <commons.text.version>1.6</commons.text.version>
-        <commons.configuration2.version>2.4</commons.configuration2.version>
+        <commons.configuration2.version>2.7</commons.configuration2.version>
         <commons.beanutils.version>1.9.3</commons.beanutils.version>
 
         <log4j.version>2.11.2</log4j.version>
