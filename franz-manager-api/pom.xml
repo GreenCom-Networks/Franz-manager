@@ -26,7 +26,7 @@
 
         <jersey.version>2.28</jersey.version>
         <grizzly.version>2.4.4</grizzly.version>
-        <jackson.version>2.9.8</jackson.version>
+        <jackson.version>2.12.1</jackson.version>
         <kafka.version>2.1.1</kafka.version>
         <zookeeper.version>3.4.13</zookeeper.version>
     </properties>
