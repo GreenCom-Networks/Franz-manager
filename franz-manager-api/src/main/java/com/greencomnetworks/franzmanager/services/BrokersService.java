@@ -68,10 +68,11 @@ public class BrokersService {
                         }
                         return configEntry;
                     })
-                    .collect(Collectors.toMap(
-                        e -> e.name(),
-                        e -> e.value()
-                    ));
+                    .collect(HashMap::new, (m,v)->m.put(v.name(), v.value()), HashMap::putAll); // Fix .toMap() bug with null values
+//                    .collect(Collectors.toMap(
+//                        e -> e.name(),
+//                        e -> e.value()
+//                    ));
                 broker.state = Broker.State.OK;
 
                 brokers.add(broker);

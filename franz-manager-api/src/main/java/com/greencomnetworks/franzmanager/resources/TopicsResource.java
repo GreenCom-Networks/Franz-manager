@@ -110,10 +110,11 @@ public class TopicsResource {
                     Map<String, String> configurations = null;
                     if(!shortVersion) {
                         configurations = entry.getValue().entries().stream()
-                            .collect(Collectors.toMap(
-                                ConfigEntry::name,
-                                ConfigEntry::value
-                            ));
+                        .collect(HashMap::new, (m,v)->m.put(v.name(), v.value()), HashMap::putAll); // Fix .toMap() bug with null values
+//                            .collect(Collectors.toMap(
+//                                ConfigEntry::name,
+//                                ConfigEntry::value
+//                            ));
                     }
                     List<Partition> topicPartitions = describedTopic.partitions().stream()
                         .map(topicPartitionInfo -> {
@@ -273,10 +274,11 @@ public class TopicsResource {
 
     private Map<String, String> retrieveConfigurations(AdminClient adminClient, String topicId) {
         return KafkaUtils.describeTopicConfig(adminClient, topicId).entries().stream()
-            .collect(Collectors.toMap(
-                ConfigEntry::name,
-                ConfigEntry::value
-            ));
+            .collect(HashMap::new, (m,v)->m.put(v.name(), v.value()), HashMap::putAll); // Fix .toMap() bug with null values
+//            .collect(Collectors.toMap(
+//                ConfigEntry::name,
+//                ConfigEntry::value
+//            ));
     }
 
     private List<Partition> retrievePartitions(String topicId) {
